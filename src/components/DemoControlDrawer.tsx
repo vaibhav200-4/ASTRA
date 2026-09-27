@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useMission } from '../context/MissionContext';
-import { Play, AlertTriangle, FastForward, EyeOff, ShieldAlert, RefreshCw, ChevronUp, ChevronDown, Sparkles } from 'lucide-react';
+import { Play, AlertTriangle, FastForward, EyeOff, ShieldAlert, RefreshCw, ChevronUp, ChevronDown, Sparkles, Sliders } from 'lucide-react';
 
 export const DemoControlDrawer: React.FC = () => {
   const { 
@@ -14,28 +14,28 @@ export const DemoControlDrawer: React.FC = () => {
   if (demoMode !== 'SIMULATION') return null;
 
   return (
-    <div className="fixed bottom-3 right-4 z-40 max-w-xl font-sans animate-in fade-in slide-in-from-bottom duration-300">
-      <div className="bg-[#071B33] border-2 border-saffron-500 rounded-lg shadow-2xl overflow-hidden text-white">
+    <div className="fixed bottom-3 right-4 z-40 max-w-xl w-full sm:w-auto font-sans animate-in fade-in slide-in-from-bottom duration-300">
+      <div className="glass-card bg-[#080d19]/95 backdrop-blur-md border-2 border-amber-500/80 rounded-2xl shadow-[0_0_30px_rgba(245,158,11,0.25)] overflow-hidden text-white">
         {/* Drawer Header Toggle */}
         <div 
           onClick={() => setIsExpanded(!isExpanded)}
-          className="bg-[#041021] px-3.5 py-2 flex items-center justify-between cursor-pointer border-b border-navy-800 select-none hover:bg-navy-900 transition-colors"
+          className="bg-slate-950/90 px-4 py-2.5 flex items-center justify-between cursor-pointer border-b border-slate-800 select-none hover:bg-slate-900 transition-colors"
         >
           <div className="flex items-center space-x-2">
-            <Sparkles size={16} className="text-saffron-400 animate-pulse" />
-            <span className="font-bold font-mono text-xs text-saffron-400 tracking-wider">
+            <Sparkles size={16} className="text-amber-400 animate-pulse" />
+            <span className="font-extrabold font-mono text-xs text-amber-400 tracking-wider">
               DEMO & JUDGE SIMULATION CONTROLS
             </span>
-            <span className="bg-saffron-500/20 text-saffron-300 border border-saffron-500/40 text-[10px] font-bold px-1.5 py-0.2 rounded">
-              PROTOTYPE
+            <span className="bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[9px] font-bold px-1.5 py-0.2 rounded font-mono">
+              LIVE SIM
             </span>
           </div>
 
           <div className="flex items-center space-x-3">
             <span className="text-[11px] font-mono text-slate-300">
-              STEP: {currentStep} | FSM: <span className="text-saffron-400">{fsmState}</span>
+              STEP {currentStep} | <span className="text-amber-400 font-bold">{fsmState}</span>
             </span>
-            <button className="text-slate-400 hover:text-white">
+            <button className="text-slate-400 hover:text-white p-0.5">
               {isExpanded ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
             </button>
           </div>
@@ -43,9 +43,9 @@ export const DemoControlDrawer: React.FC = () => {
 
         {/* Collapsible Action Buttons Panel */}
         {isExpanded && (
-          <div className="p-3 bg-navy-900 space-y-2.5">
-            <p className="text-[11px] text-slate-300 leading-tight">
-              Test full operational loop: valid state transitions, deviation warnings, sequence violations, low confidence, and tracking loss.
+          <div className="p-3.5 bg-slate-950/80 space-y-2.5">
+            <p className="text-[11px] text-slate-400 font-mono leading-tight">
+              Interactive test controls: simulate valid step completion, protocol deviation alerts, object tracking loss, low confidence, and state machine recovery.
             </p>
 
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
@@ -53,7 +53,7 @@ export const DemoControlDrawer: React.FC = () => {
               <button
                 onClick={performCorrectStep}
                 disabled={missionStatus === 'COMPLETED'}
-                className="px-2.5 py-2 bg-emerald-700 hover:bg-emerald-600 active:bg-emerald-800 disabled:opacity-50 text-white font-bold text-xs rounded shadow flex items-center justify-center space-x-1.5 transition-colors border border-emerald-500"
+                className="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 disabled:opacity-50 text-slate-950 font-extrabold text-xs rounded-xl shadow-lg flex items-center justify-center space-x-1.5 transition-all font-mono border border-emerald-400"
               >
                 <Play size={14} className="fill-current" />
                 <span>CORRECT STEP</span>
@@ -62,7 +62,7 @@ export const DemoControlDrawer: React.FC = () => {
               {/* Perform Wrong Step */}
               <button
                 onClick={performWrongStep}
-                className="px-2.5 py-2 bg-red-700 hover:bg-red-600 active:bg-red-800 text-white font-bold text-xs rounded shadow flex items-center justify-center space-x-1.5 transition-colors border border-red-500"
+                className="px-3 py-2 bg-red-600 hover:bg-red-500 active:bg-red-700 text-white font-extrabold text-xs rounded-xl shadow-lg flex items-center justify-center space-x-1.5 transition-all font-mono border border-red-400"
               >
                 <AlertTriangle size={14} />
                 <span>WRONG STEP</span>
@@ -71,7 +71,7 @@ export const DemoControlDrawer: React.FC = () => {
               {/* Skip Current Step */}
               <button
                 onClick={skipCurrentStep}
-                className="px-2.5 py-2 bg-amber-700 hover:bg-amber-600 active:bg-amber-800 text-white font-bold text-xs rounded shadow flex items-center justify-center space-x-1.5 transition-colors border border-amber-500"
+                className="px-3 py-2 bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-slate-950 font-extrabold text-xs rounded-xl shadow-lg flex items-center justify-center space-x-1.5 transition-all font-mono border border-amber-400"
               >
                 <FastForward size={14} />
                 <span>SKIP STEP</span>
@@ -80,37 +80,37 @@ export const DemoControlDrawer: React.FC = () => {
               {/* Object Lost */}
               <button
                 onClick={triggerObjectLost}
-                className="px-2.5 py-2 bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-slate-200 font-bold text-xs rounded shadow flex items-center justify-center space-x-1.5 transition-colors border border-slate-600"
+                className="px-3 py-2 bg-slate-900 hover:bg-slate-800 text-slate-200 font-bold text-xs rounded-xl shadow flex items-center justify-center space-x-1.5 transition-all font-mono border border-slate-700"
               >
-                <EyeOff size={14} />
+                <EyeOff size={14} className="text-slate-400" />
                 <span>OBJECT LOST</span>
               </button>
 
               {/* Low Confidence */}
               <button
                 onClick={triggerLowConfidence}
-                className="px-2.5 py-2 bg-purple-900 hover:bg-purple-800 active:bg-purple-950 text-purple-200 font-bold text-xs rounded shadow flex items-center justify-center space-x-1.5 transition-colors border border-purple-600"
+                className="px-3 py-2 bg-purple-950/80 hover:bg-purple-900 text-purple-200 font-bold text-xs rounded-xl shadow flex items-center justify-center space-x-1.5 transition-all font-mono border border-purple-800"
               >
-                <ShieldAlert size={14} />
-                <span>LOW CONFIDENCE</span>
+                <ShieldAlert size={14} className="text-purple-400" />
+                <span>LOW CONF</span>
               </button>
 
               {/* Recover Tracking */}
               <button
                 onClick={recoverTracking}
-                className="px-2.5 py-2 bg-blue-700 hover:bg-blue-600 active:bg-blue-800 text-white font-bold text-xs rounded shadow flex items-center justify-center space-x-1.5 transition-colors border border-blue-500"
+                className="px-3 py-2 bg-cyan-950/80 hover:bg-cyan-900 text-cyan-300 font-bold text-xs rounded-xl shadow flex items-center justify-center space-x-1.5 transition-all font-mono border border-cyan-700"
               >
-                <RefreshCw size={14} />
-                <span>RECOVER TRACKING</span>
+                <RefreshCw size={14} className="text-cyan-400" />
+                <span>RECOVER</span>
               </button>
             </div>
 
             {/* Quick Reset Link */}
-            <div className="flex items-center justify-between text-[11px] pt-1 border-t border-navy-800 text-slate-400">
-              <span>Simulated Inference Mode — Edge Jetson Xavier</span>
+            <div className="flex items-center justify-between text-[10px] pt-1.5 border-t border-slate-800/80 text-slate-400 font-mono">
+              <span>Jetson Xavier Edge AI Emulator</span>
               <button 
                 onClick={resetMission}
-                className="text-saffron-400 hover:underline font-semibold flex items-center space-x-1"
+                className="text-amber-400 hover:text-amber-300 font-bold flex items-center space-x-1 transition-colors"
               >
                 <RefreshCw size={12} />
                 <span>Reset Simulation</span>

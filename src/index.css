@@ -4,26 +4,91 @@
 
 @layer base {
   body {
-    @apply bg-[#F4F7FA] text-[#152238] antialiased selection:bg-saffron-500 selection:text-white;
+    @apply bg-[#0a0e1a] text-slate-100 antialiased selection:bg-cyan-500 selection:text-slate-950;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+  }
+
+  .font-mono {
+    font-family: 'JetBrains Mono', 'Space Mono', monospace;
   }
 }
 
 /* Custom aerospace dark scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #041021;
+  background: #050811;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #174EA6;
-  border-radius: 3px;
+  background: #1e293b;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #F58220;
+  background: #06b6d4;
+}
+
+/* Glassmorphism Card Style */
+.glass-card {
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(51, 65, 85, 0.5);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
+}
+
+.glass-card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card-hover:hover {
+  transform: translateY(-2px);
+  border-color: rgba(6, 182, 212, 0.5);
+  box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.15), 0 0 15px rgba(6, 182, 212, 0.1);
+}
+
+/* Pulse animation with ring glow */
+@keyframes cyanGlowPulse {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(6, 182, 212, 0.4), 0 0 12px rgba(6, 182, 212, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(6, 182, 212, 0.8), 0 0 24px rgba(6, 182, 212, 0.5);
+  }
+}
+
+.glow-cyan {
+  animation: cyanGlowPulse 2.5s infinite ease-in-out;
+}
+
+/* Scanline Overlay for Sci-Fi HUD feel */
+.scanline-bg {
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%, 
+    rgba(0, 0, 0, 0.25) 50%
+  ), linear-gradient(
+    90deg,
+    rgba(255, 0, 0, 0.03),
+    rgba(0, 255, 0, 0.01),
+    rgba(0, 0, 255, 0.03)
+  );
+  background-size: 100% 3px, 6px 100%;
+}
+
+/* Tab indicator slide line animation */
+.tab-underline {
+  position: absolute;
+  bottom: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #06b6d4, #3b82f6);
+  border-radius: 2px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }

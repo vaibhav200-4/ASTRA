@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useMission } from '../context/MissionContext';
-import { FileText, CheckCircle2, Sliders, ShieldCheck, ArrowRight } from 'lucide-react';
+import { FileText, CheckCircle2, Sliders, ShieldCheck, ArrowRight, Zap, Check } from 'lucide-react';
 
 export const ProtocolPage: React.FC = () => {
   const { currentStep, completedSteps, fsmState } = useMission();
@@ -43,23 +43,23 @@ export const ProtocolPage: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-6 font-sans">
+    <div className="space-y-5 font-sans">
       {/* Title Header */}
-      <div className="bg-[#071B33] text-white p-6 rounded-lg shadow-md border border-navy-700 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="glass-card bg-gradient-to-r from-slate-900 to-[#0d162a] text-white p-5 rounded-2xl shadow-xl border border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center space-x-2 text-saffron-400 font-mono text-xs font-bold mb-1">
+          <div className="flex items-center space-x-2 text-amber-400 font-mono text-xs font-bold mb-1">
             <FileText size={16} />
             <span>BOX & CONTAINER EXPERIMENT (BCE-01)</span>
           </div>
-          <h1 className="text-xl md:text-2xl font-bold font-mono tracking-tight text-white">
+          <h1 className="text-xl md:text-2xl font-extrabold font-mono tracking-tight text-white">
             DETERMINISTIC EXPERIMENT PROTOCOL SPECIFICATION
           </h1>
-          <p className="text-xs text-slate-300 mt-1">
-            Engineered finite state machine validation rules enforcing strict procedural compliance.
+          <p className="text-xs text-slate-400 mt-1 font-mono">
+            Finite state machine validation rules enforcing strict procedural compliance.
           </p>
         </div>
 
-        <div className="bg-navy-900 px-4 py-2 rounded border border-navy-700 font-mono text-xs text-right">
+        <div className="bg-slate-950/80 px-4 py-2 rounded-xl border border-slate-800 font-mono text-xs text-right">
           <span className="text-slate-400 block text-[10px]">VALIDATOR ENGINE</span>
           <span className="font-bold text-emerald-400">FINITE STATE MACHINE (FSM)</span>
         </div>
@@ -71,36 +71,37 @@ export const ProtocolPage: React.FC = () => {
           <div 
             key={step.id}
             onClick={() => setSelectedStep(step.id)}
-            className={`p-5 rounded-lg border cursor-pointer transition-all ${
+            className={`glass-card p-5 rounded-2xl border cursor-pointer transition-all ${
               selectedStep === step.id 
-                ? 'bg-white border-saffron-500 ring-2 ring-saffron-500/20 shadow-lg' 
-                : 'bg-white border-slate-200 hover:border-slate-300 shadow-sm'
+                ? 'bg-cyan-950/40 border-cyan-500 shadow-[0_0_20px_rgba(6,182,212,0.2)]' 
+                : 'bg-slate-900/70 border-slate-800 hover:border-slate-700'
             }`}
           >
-            <div className="flex items-center justify-between border-b pb-3 mb-3">
-              <span className="font-mono font-bold text-xs text-saffron-600 bg-saffron-50 px-2 py-0.5 rounded">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
+              <span className="font-mono font-bold text-xs text-amber-400 bg-amber-950/60 border border-amber-800/60 px-2.5 py-0.5 rounded-md">
                 STEP 0{step.id}
               </span>
-              <span className={`font-mono font-bold text-xs ${
-                step.currentStatus === 'COMPLETED' ? 'text-emerald-600' :
-                step.currentStatus === 'CURRENT' ? 'text-blue-600 animate-pulse' :
-                'text-slate-400'
+              <span className={`font-mono font-bold text-xs flex items-center space-x-1 ${
+                step.currentStatus === 'COMPLETED' ? 'text-emerald-400' :
+                step.currentStatus === 'CURRENT' ? 'text-amber-400 animate-pulse' :
+                'text-slate-500'
               }`}>
-                ● {step.currentStatus}
+                <span className={`w-2 h-2 rounded-full ${step.currentStatus === 'COMPLETED' ? 'bg-emerald-400' : step.currentStatus === 'CURRENT' ? 'bg-amber-400 animate-ping' : 'bg-slate-600'}`}></span>
+                <span>{step.currentStatus}</span>
               </span>
             </div>
 
-            <h3 className="font-bold font-mono text-sm text-navy-900 mb-2">{step.name}</h3>
+            <h3 className="font-bold font-mono text-sm text-white mb-2">{step.name}</h3>
 
-            <div className="space-y-2 text-xs font-mono text-slate-600">
+            <div className="space-y-2 text-xs font-mono text-slate-300">
               <div>
-                <span className="text-slate-400 block text-[10px]">REQUIRED OBJECT</span>
-                <span className="text-navy-900 font-semibold">{step.requiredObject}</span>
+                <span className="text-slate-500 block text-[10px]">REQUIRED OBJECT</span>
+                <span className="text-slate-200 font-semibold">{step.requiredObject}</span>
               </div>
 
               <div>
-                <span className="text-slate-400 block text-[10px]">CONFIDENCE THRESHOLD</span>
-                <span className="text-saffron-600 font-semibold">{step.confidenceThreshold}</span>
+                <span className="text-slate-500 block text-[10px]">CONFIDENCE THRESHOLD</span>
+                <span className="text-amber-400 font-semibold">{step.confidenceThreshold}</span>
               </div>
             </div>
           </div>
@@ -109,28 +110,28 @@ export const ProtocolPage: React.FC = () => {
 
       {/* Step Detail Deep Dive */}
       {selectedStep && (
-        <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm space-y-4 font-mono text-xs">
-          <h3 className="font-bold text-sm text-navy-900 border-b pb-2 flex items-center justify-between">
-            <span>DETAILED REQUIREMENT SPECIFICATION: STEP 0{selectedStep}</span>
-            <span className="text-saffron-600">FSM STATE: {stepsData[selectedStep - 1].fsm}</span>
+        <div className="glass-card p-6 rounded-2xl border border-slate-800 shadow-xl space-y-4 font-mono text-xs">
+          <h3 className="font-bold text-sm text-white border-b border-slate-800 pb-2 flex items-center justify-between">
+            <span>REQUIREMENT SPECIFICATION: STEP 0{selectedStep}</span>
+            <span className="text-amber-400">FSM STATE: {stepsData[selectedStep - 1].fsm}</span>
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-3 bg-space-bg p-4 rounded border border-slate-200">
+            <div className="space-y-3 bg-slate-950/80 p-4 rounded-xl border border-slate-800">
               <div>
                 <span className="text-slate-500 text-[10px] block">EXPECTED HAND-OBJECT INTERACTION</span>
-                <span className="font-bold text-navy-900 text-sm">{stepsData[selectedStep - 1].expectedInteraction}</span>
+                <span className="font-bold text-cyan-300 text-sm">{stepsData[selectedStep - 1].expectedInteraction}</span>
               </div>
               <div>
                 <span className="text-slate-500 text-[10px] block">STATE TRANSITION TRIGGER</span>
-                <span className="font-bold text-emerald-700">{stepsData[selectedStep - 1].trigger}</span>
+                <span className="font-bold text-emerald-400">{stepsData[selectedStep - 1].trigger}</span>
               </div>
             </div>
 
-            <div className="space-y-3 bg-space-bg p-4 rounded border border-slate-200">
+            <div className="space-y-3 bg-slate-950/80 p-4 rounded-xl border border-slate-800">
               <div>
                 <span className="text-slate-500 text-[10px] block">PROCEDURAL DESCRIPTION</span>
-                <p className="text-slate-700 leading-relaxed font-sans text-xs mt-1">
+                <p className="text-slate-300 leading-relaxed font-sans text-xs mt-1">
                   {stepsData[selectedStep - 1].details}
                 </p>
               </div>

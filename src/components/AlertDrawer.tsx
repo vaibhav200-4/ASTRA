@@ -19,41 +19,41 @@ export const AlertDrawer: React.FC<AlertDrawerProps> = ({ isOpen, onClose }) => 
 
   const getIcon = (cat: string) => {
     switch (cat) {
-      case 'CRITICAL': return <AlertTriangle className="text-red-500" size={18} />;
-      case 'WARNING': return <AlertCircle className="text-amber-500" size={18} />;
-      case 'SYSTEM': return <ShieldAlert className="text-blue-500" size={18} />;
+      case 'CRITICAL': return <AlertTriangle className="text-red-400" size={18} />;
+      case 'WARNING': return <AlertCircle className="text-amber-400" size={18} />;
+      case 'SYSTEM': return <ShieldAlert className="text-cyan-400" size={18} />;
       default: return <Info className="text-slate-400" size={18} />;
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-slate-900/50 backdrop-blur-xs flex justify-end font-sans">
-      <div className="w-full max-w-md bg-[#071B33] border-l border-navy-700 shadow-2xl flex flex-col text-white h-full animate-in slide-in-from-right duration-200">
+    <div className="fixed inset-0 z-50 overflow-hidden bg-slate-950/80 backdrop-blur-md flex justify-end font-sans">
+      <div className="w-full max-w-md bg-[#080d19] border-l border-slate-800 shadow-2xl flex flex-col text-white h-full animate-in slide-in-from-right duration-200">
         {/* Drawer Header */}
-        <div className="p-4 border-b border-navy-800 bg-[#041021] flex items-center justify-between">
+        <div className="p-4 border-b border-slate-800 bg-slate-950/90 flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Bell className="text-saffron-500" size={20} />
-            <h3 className="font-bold font-mono tracking-wider text-base text-white">MISSION ALERT CENTER</h3>
+            <Bell className="text-amber-400 animate-pulse" size={20} />
+            <h3 className="font-extrabold font-mono tracking-wider text-base text-white">MISSION ALERT CENTER</h3>
           </div>
           <button 
             onClick={onClose}
-            className="p-1 rounded hover:bg-navy-800 text-slate-400 hover:text-white"
+            className="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
           >
             <X size={18} />
           </button>
         </div>
 
         {/* Category Filter Tabs */}
-        <div className="p-3 bg-navy-900 border-b border-navy-800 flex items-center justify-between">
+        <div className="p-3 bg-slate-900/80 border-b border-slate-800 flex items-center justify-between">
           <div className="flex space-x-1">
             {['ALL', 'CRITICAL', 'WARNING', 'SYSTEM'].map(cat => (
               <button
                 key={cat}
                 onClick={() => setFilterCategory(cat)}
-                className={`px-2.5 py-1 text-[11px] font-bold rounded transition-colors ${
+                className={`px-2.5 py-1 text-[11px] font-bold rounded-lg transition-all ${
                   filterCategory === cat 
-                    ? 'bg-saffron-500 text-white' 
-                    : 'text-slate-400 hover:text-white hover:bg-navy-800'
+                    ? 'bg-cyan-500 text-slate-950 shadow-[0_0_10px_rgba(6,182,212,0.3)]' 
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
                 }`}
               >
                 {cat}
@@ -62,7 +62,7 @@ export const AlertDrawer: React.FC<AlertDrawerProps> = ({ isOpen, onClose }) => 
           </div>
           <button 
             onClick={clearAllAlerts}
-            className="text-[11px] text-slate-400 hover:text-saffron-400 font-semibold underline"
+            className="text-[11px] text-slate-400 hover:text-amber-400 font-semibold underline"
           >
             Acknowledge All
           </button>
@@ -71,19 +71,19 @@ export const AlertDrawer: React.FC<AlertDrawerProps> = ({ isOpen, onClose }) => 
         {/* Alert List */}
         <div className="flex-1 overflow-y-auto p-4 space-y-3">
           {filteredAlerts.length === 0 ? (
-            <div className="py-12 text-center text-slate-400">
-              <CheckCircle2 size={36} className="mx-auto text-emerald-500 mb-2 opacity-60" />
-              <p className="text-sm font-medium">No alerts active</p>
+            <div className="py-12 text-center text-slate-400 font-mono">
+              <CheckCircle2 size={36} className="mx-auto text-emerald-400 mb-2 opacity-80" />
+              <p className="text-sm font-bold text-white">No active alerts</p>
               <p className="text-xs text-slate-500 mt-1">All mission parameters nominal</p>
             </div>
           ) : (
             filteredAlerts.map(alert => (
               <div 
                 key={alert.id}
-                className={`p-3 rounded border transition-all ${
+                className={`p-3 rounded-xl border transition-all ${
                   alert.category === 'CRITICAL' ? 'bg-red-950/40 border-red-800/70' :
                   alert.category === 'WARNING' ? 'bg-amber-950/40 border-amber-800/70' :
-                  'bg-navy-900 border-navy-700'
+                  'bg-slate-900/80 border-slate-800'
                 } ${alert.resolved ? 'opacity-60' : 'shadow-md'}`}
               >
                 <div className="flex items-start justify-between">
@@ -99,12 +99,12 @@ export const AlertDrawer: React.FC<AlertDrawerProps> = ({ isOpen, onClose }) => 
                   {!alert.resolved ? (
                     <button 
                       onClick={() => resolveAlert(alert.id)}
-                      className="px-2 py-0.5 bg-navy-800 hover:bg-navy-700 text-saffron-400 font-semibold rounded border border-navy-600"
+                      className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-amber-400 font-semibold rounded-md border border-slate-700 transition-colors"
                     >
                       Acknowledge
                     </button>
                   ) : (
-                    <span className="text-emerald-400 font-semibold flex items-center space-x-1">
+                    <span className="text-emerald-400 font-semibold flex items-center space-x-1 font-mono">
                       <CheckCircle2 size={12} />
                       <span>RESOLVED</span>
                     </span>
@@ -116,9 +116,9 @@ export const AlertDrawer: React.FC<AlertDrawerProps> = ({ isOpen, onClose }) => 
         </div>
 
         {/* Footer info */}
-        <div className="p-3 bg-[#041021] border-t border-navy-800 text-[11px] text-slate-400 flex items-center justify-between">
+        <div className="p-3 bg-slate-950/90 border-t border-slate-800 text-[11px] text-slate-400 flex items-center justify-between font-mono">
           <span>Processing: LOCAL EDGE</span>
-          <span className="font-mono text-saffron-400">SIH 2026 PS174</span>
+          <span className="text-amber-400">SIH 2026 PS174</span>
         </div>
       </div>
     </div>

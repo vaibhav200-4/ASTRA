@@ -48,7 +48,7 @@ export const AppContent: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F4F7FA] text-[#152238] font-sans selection:bg-saffron-500 selection:text-white">
+    <div className="min-h-screen flex flex-col bg-[#0a0e1a] text-slate-100 font-sans selection:bg-cyan-500 selection:text-slate-950">
       {/* Institutional Mission Control Header */}
       <Header 
         activeTab={activeTab} 
@@ -56,8 +56,8 @@ export const AppContent: React.FC = () => {
         onOpenAlerts={() => setAlertsOpen(true)} 
       />
 
-      {/* Main Content Body */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 transition-all">
+      {/* Main Content Body with smooth tab transitions */}
+      <main className="flex-1 max-w-7xl w-full mx-auto p-3 md:p-5 transition-all">
         {renderActivePage()}
       </main>
 
