@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { useMission } from '../context/MissionContext';
-import { CameraCanvas } from '../components/CameraCanvas';
-import { AstronautViewer } from '../components/AstronautViewer';
+import { ProceduralRackViewport } from '../components/ProceduralRackViewport';
 import { PipelineStrip } from '../components/PipelineStrip';
-import { 
-  Play, ShieldAlert, Cpu, Activity, ArrowRight, ShieldCheck, 
-  CheckCircle2, Zap, Target, UserCheck, Hand, RefreshCw, Radio,
-  WifiOff, Layers, Check, Clock, Box, Eye, AlertOctagon, HelpCircle
+import { ErrorBoundary } from '../components/ErrorBoundary';
+import {
+  CheckCircle2, AlertTriangle, ShieldCheck, Activity, Clock, Sliders,
+  Layers, Radio, Flame, RefreshCw, Zap, ArrowUpRight, Target, Hand, Move3d, Box
 } from 'lucide-react';
 
 interface MissionOverviewProps {
@@ -14,216 +13,377 @@ interface MissionOverviewProps {
 }
 
 export const MissionOverview: React.FC<MissionOverviewProps> = ({ setActiveTab }) => {
-  const { fps, latency, currentStep, trackingStatus, activityConfidence, language } = useMission();
-  const [viewMode, setViewMode] = useState<'2D' | '3D' | 'DUAL'>('2D');
+  const {
+    fps, latency, currentStep, completedSteps, fsmState,
+    bayesData, fusionResult, alerts,
+    performCorrectStep, triggerHandNearObjectNoStateChange,
+    triggerSensorDisagreement, randomizeOrientation, setThermalThrottlePercent,
+    injectBitFlip, triggerObjectLost, recoverTracking
+  } = useMission();
+
+  const [activeDemoTile, setActiveDemoTile] = useState<number | null>(null);
+
+  const activeAlertsCount = alerts.filter(a => !a.resolved).length;
+
+  const handleTileDemo = (tileId: number, action: () => void) => {
+    setActiveDemoTile(tileId);
+    action();
+    setTimeout(() => setActiveDemoTile(null), 3000);
+  };
 
   return (
-    <div className="space-y-4 font-sans">
-      {/* 1. HERO SECTION BANNER */}
-      <div className="isro-card p-5 bg-white dark:bg-[#0A1A33] border-l-4 border-l-[#F26B21] space-y-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="bg-[#123F8C] text-white font-mono text-xs font-bold px-2.5 py-0.5 rounded">
-            SIH 2026 PS174 | SIH26174
-          </span>
-          <span className="bg-[#EEF3FA] dark:bg-slate-800 text-[#123F8C] dark:text-cyan-300 text-xs font-mono font-semibold px-2 py-0.5 rounded border border-[#D5DCE6] dark:border-slate-700">
-            ISRO • Department of Space
-          </span>
+    <div className="space-y-3 font-sans select-none max-w-[1440px] mx-auto pb-2">
+      {/* 1. TOP KPI ROW (12 Columns Grid) */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+        {/* KPI 1: Steps Verified */}
+        <div
+          onClick={() => setActiveTab('protocol')}
+          className="isro-card p-2.5 bg-white dark:bg-[#0A1A33] border border-slate-700/80 hover:border-orange-500 cursor-pointer transition-all group"
+        >
+          <div className="flex items-center justify-between text-[11px] text-slate-400 font-sans">
+            <span className="font-semibold text-slate-200">Steps Verified</span>
+            <ArrowUpRight size={12} className="text-slate-500 group-hover:text-orange-400 transition-colors" />
+          </div>
+          <div className="flex items-baseline justify-between mt-1">
+            <span className="text-xl font-bold font-mono text-emerald-400">
+              {completedSteps.length} / 3
+            </span>
+            <span className="text-[10px] font-sans font-bold text-emerald-500 bg-emerald-950/60 px-1.5 py-0.2 rounded">
+              Active
+            </span>
+          </div>
         </div>
 
-        <h1 className="text-xl md:text-2xl font-bold text-[#0B2A5B] dark:text-white leading-tight">
-          ASTRA-PVT: Astronaut Protocol Tracking & Validation System
-        </h1>
+        {/* KPI 2: Bayes Factor K */}
+        <div
+          onClick={() => setActiveTab('ai-monitor')}
+          className="isro-card p-2.5 bg-white dark:bg-[#0A1A33] border border-slate-700/80 hover:border-orange-500 cursor-pointer transition-all group"
+        >
+          <div className="flex items-center justify-between text-[11px] text-slate-400 font-sans">
+            <span className="font-semibold text-slate-200">Bayes Factor K</span>
+            <ArrowUpRight size={12} className="text-slate-500 group-hover:text-orange-400 transition-colors" />
+          </div>
+          <div className="flex items-baseline justify-between mt-1">
+            <span className="text-xl font-bold font-mono text-cyan-300">
+              {(bayesData?.kValue ?? 48.0).toFixed(1)}
+            </span>
+            <span className="text-[10px] font-sans font-bold text-cyan-400 bg-cyan-950/60 px-1.5 py-0.2 rounded">
+              Very Strong
+            </span>
+          </div>
+        </div>
 
-        {/* MANDATORY ONE-LINE PITCH */}
-        <p className="text-sm font-semibold text-[#123F8C] dark:text-cyan-300 bg-[#EEF3FA] dark:bg-slate-900 p-3 rounded border border-[#D5DCE6] dark:border-slate-800">
-          "An offline space-grade AI assistant that does not just recognize an astronaut's action — it verifies the physical result, validates the experiment sequence, and responds locally."
-        </p>
+        {/* KPI 3: Fusion Conflict */}
+        <div
+          onClick={() => setActiveTab('ai-monitor')}
+          className="isro-card p-2.5 bg-white dark:bg-[#0A1A33] border border-slate-700/80 hover:border-orange-500 cursor-pointer transition-all group"
+        >
+          <div className="flex items-center justify-between text-[11px] text-slate-400 font-sans">
+            <span className="font-semibold text-slate-200">Fusion Conflict</span>
+            <ArrowUpRight size={12} className="text-slate-500 group-hover:text-orange-400 transition-colors" />
+          </div>
+          <div className="flex items-baseline justify-between mt-1">
+            <span className="text-xl font-bold font-mono text-orange-400">
+              {fusionResult.kConflict.toFixed(2)}
+            </span>
+            <span className="text-[10px] font-sans font-bold text-emerald-400 bg-emerald-950/60 px-1.5 py-0.2 rounded">
+              Nominal
+            </span>
+          </div>
+        </div>
 
-        {/* Action CTAs */}
-        <div className="pt-1 flex flex-wrap items-center gap-2.5">
-          <button 
-            onClick={() => setActiveTab('live')}
-            className="btn-isro-cta font-bold"
-          >
-            <Play size={14} className="fill-current" />
-            <span>Open Live Mission Console</span>
-            <ArrowRight size={14} />
-          </button>
+        {/* KPI 4: FPS Telemetry */}
+        <div
+          onClick={() => setActiveTab('system')}
+          className="isro-card p-2.5 bg-white dark:bg-[#0A1A33] border border-slate-700/80 hover:border-orange-500 cursor-pointer transition-all group"
+        >
+          <div className="flex items-center justify-between text-[11px] text-slate-400 font-sans">
+            <span className="font-semibold text-slate-200">FPS Telemetry</span>
+            <ArrowUpRight size={12} className="text-slate-500 group-hover:text-orange-400 transition-colors" />
+          </div>
+          <div className="flex items-baseline justify-between mt-1">
+            <span className="text-xl font-bold font-mono text-white">
+              {fps.toFixed(1)}
+            </span>
+            <span className="text-[10px] font-sans font-semibold text-slate-400 bg-slate-800 px-1.5 py-0.2 rounded">
+              Simulated
+            </span>
+          </div>
+        </div>
 
-          <button 
-            onClick={() => setActiveTab('architecture')}
-            className="btn-isro-primary"
-          >
-            <ShieldAlert size={14} />
-            <span>System Architecture & Traceability</span>
-          </button>
+        {/* KPI 5: Latency */}
+        <div
+          onClick={() => setActiveTab('system')}
+          className="isro-card p-2.5 bg-white dark:bg-[#0A1A33] border border-slate-700/80 hover:border-orange-500 cursor-pointer transition-all group"
+        >
+          <div className="flex items-center justify-between text-[11px] text-slate-400 font-sans">
+            <span className="font-semibold text-slate-200">Processing Latency</span>
+            <ArrowUpRight size={12} className="text-slate-500 group-hover:text-orange-400 transition-colors" />
+          </div>
+          <div className="flex items-baseline justify-between mt-1">
+            <span className="text-xl font-bold font-mono text-orange-400">
+              {latency} ms
+            </span>
+            <span className="text-[10px] font-sans font-semibold text-slate-400 bg-slate-800 px-1.5 py-0.2 rounded">
+              Simulated
+            </span>
+          </div>
+        </div>
 
-          <button 
-            onClick={() => setActiveTab('evaluation')}
-            className="btn-isro-outline font-bold"
-          >
-            <Activity size={14} />
-            <span>Evaluation Dashboard</span>
-          </button>
+        {/* KPI 6: Active Alerts */}
+        <div
+          onClick={() => setActiveTab('logs')}
+          className="isro-card p-2.5 bg-white dark:bg-[#0A1A33] border border-slate-700/80 hover:border-orange-500 cursor-pointer transition-all group"
+        >
+          <div className="flex items-center justify-between text-[11px] text-slate-400 font-sans">
+            <span className="font-semibold text-slate-200">Active Alerts</span>
+            <ArrowUpRight size={12} className="text-slate-500 group-hover:text-orange-400 transition-colors" />
+          </div>
+          <div className="flex items-baseline justify-between mt-1">
+            <span className={`text-xl font-bold font-mono ${activeAlertsCount > 0 ? 'text-red-400 animate-pulse' : 'text-emerald-400'}`}>
+              {activeAlertsCount} Active
+            </span>
+            <span className={`text-[10px] font-sans font-bold px-1.5 py-0.2 rounded ${activeAlertsCount > 0 ? 'bg-red-950 text-red-300' : 'bg-emerald-950 text-emerald-400'}`}>
+              {activeAlertsCount > 0 ? 'Action Req' : 'Nominal'}
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* 2. CORE LIVE PIPELINE STRIP */}
-      <PipelineStrip />
-
-      {/* 3. COMPACT PROBLEMS → SOLUTION SECTION */}
-      <div className="isro-card p-4 bg-white dark:bg-[#0A1A33] space-y-3">
-        <h2 className="isro-section-title mb-0 text-xs font-mono">
-          System Core Capabilities: Problems → Solution Mapping
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {/* Problem 1 */}
-          <div className="p-3 bg-[#F5F7FA] dark:bg-slate-900 rounded border border-[#D5DCE6] dark:border-slate-800 space-y-1 text-xs">
-            <span className="font-bold text-[#C62828] text-[11px] block">Problem 1: No Earth-in-the-loop</span>
-            <p className="text-[#5B6675] dark:text-slate-300 text-[11px]">
-              <strong>Solution:</strong> 100% on-device edge inference on Jetson-class platform. Zero cloud dependency.
-            </p>
+      {/* 2. MAIN DASHBOARD CONTENT GRID (12 Cols: 8 Left / 4 Right) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3">
+        {/* LEFT 8 COLS: VIEWPORT & CONNECTED PIPELINE FLOW */}
+        <div className="lg:col-span-8 space-y-2">
+          {/* Phase 1 Procedural Rack Camera Viewport */}
+          <div className="isro-card p-2 bg-white dark:bg-[#0A1A33]">
+            <ErrorBoundary fallbackTitle="Procedural Viewport Notice">
+              <ProceduralRackViewport />
+            </ErrorBoundary>
           </div>
 
-          {/* Problem 2 */}
-          <div className="p-3 bg-[#F5F7FA] dark:bg-slate-900 rounded border border-[#D5DCE6] dark:border-slate-800 space-y-1 text-xs">
-            <span className="font-bold text-[#C62828] text-[11px] block">Problem 2: No fixed 'up' in microgravity</span>
-            <p className="text-[#5B6675] dark:text-slate-300 text-[11px]">
-              <strong>Solution:</strong> Rigid transform J_rack = R_rackᵀ (J_cam − t_rack) anchored to ArUco fiducials on rack.
-            </p>
-          </div>
-
-          {/* Problem 3 */}
-          <div className="p-3 bg-[#F5F7FA] dark:bg-slate-900 rounded border border-[#D5DCE6] dark:border-slate-800 space-y-1 text-xs">
-            <span className="font-bold text-[#C62828] text-[11px] block">Problem 3: Hand-near-object ≠ proof</span>
-            <p className="text-[#5B6675] dark:text-slate-300 text-[11px]">
-              <strong>Solution:</strong> 3-way causal verification requiring Action + Physical State-change + Context agreement.
-            </p>
-          </div>
-
-          {/* Problem 4 */}
-          <div className="p-3 bg-[#F5F7FA] dark:bg-slate-900 rounded border border-[#D5DCE6] dark:border-slate-800 space-y-1 text-xs">
-            <span className="font-bold text-[#C62828] text-[11px] block">Problem 4: Single-model failure / sensor noise</span>
-            <p className="text-[#5B6675] dark:text-slate-300 text-[11px]">
-              <strong>Solution:</strong> Dempster-Shafer multi-sensor fusion with automated K_conflict fault isolation.
-            </p>
-          </div>
-
-          {/* Problem 5 */}
-          <div className="p-3 bg-[#F5F7FA] dark:bg-slate-900 rounded border border-[#D5DCE6] dark:border-slate-800 space-y-1 text-xs">
-            <span className="font-bold text-[#C62828] text-[11px] block">Problem 5: Constrained edge compute</span>
-            <p className="text-[#5B6675] dark:text-slate-300 text-[11px]">
-              <strong>Solution:</strong> Adaptive ROI controller crops active interaction area (70%+ FLOPS saved).
-            </p>
-          </div>
-
-          {/* Problem 6 */}
-          <div className="p-3 bg-[#F5F7FA] dark:bg-slate-900 rounded border border-[#D5DCE6] dark:border-slate-800 space-y-1 text-xs">
-            <span className="font-bold text-[#C62828] text-[11px] block">Problem 6: Protocol deviations & sequence mistakes</span>
-            <p className="text-[#5B6675] dark:text-slate-300 text-[11px]">
-              <strong>Solution:</strong> Deterministic FSM sequence validation with on-device Web Speech TTS guidance.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* 4. MAIN SCENE VIEWPORT & TELEMETRY SUMMARY */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Left 2 Cols: Live Camera Preview / 3D Model Viewport */}
-        <div className="lg:col-span-2 space-y-3">
-          <div className="isro-card p-3.5 bg-white dark:bg-[#0A1A33] space-y-2">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-[#EEF3FA] dark:border-slate-800 pb-2">
-              <div>
-                <h2 className="isro-section-title mb-0 text-xs">
-                  Payload Rack Experiment Viewport
-                </h2>
-                <p className="text-[11px] text-[#5B6675] dark:text-slate-300 font-mono">
-                  Live 2D YOLO26n AI overlay, 3D GLTF interactive model, or dual mode
-                </p>
-              </div>
-
-              {/* VIEW MODE TOGGLE BUTTONS */}
-              <div className="flex items-center space-x-1 bg-[#EEF3FA] dark:bg-slate-900 p-0.5 rounded border border-[#D5DCE6] dark:border-slate-800 text-xs font-mono">
-                <button
-                  onClick={() => setViewMode('2D')}
-                  className={`px-2.5 py-0.5 rounded font-bold transition-colors ${
-                    viewMode === '2D' ? 'bg-[#123F8C] text-white' : 'text-[#5B6675] hover:text-black'
-                  }`}
-                >
-                  2D VISION
-                </button>
-                <button
-                  onClick={() => setViewMode('3D')}
-                  className={`px-2.5 py-0.5 rounded font-bold transition-colors ${
-                    viewMode === '3D' ? 'bg-[#123F8C] text-white' : 'text-[#5B6675] hover:text-black'
-                  }`}
-                >
-                  3D MODEL
-                </button>
-                <button
-                  onClick={() => setViewMode('DUAL')}
-                  className={`px-2.5 py-0.5 rounded font-bold transition-colors ${
-                    viewMode === 'DUAL' ? 'bg-[#123F8C] text-white' : 'text-[#5B6675] hover:text-black'
-                  }`}
-                >
-                  DUAL
-                </button>
-              </div>
-            </div>
-
-            {/* Viewport Render Area */}
-            {viewMode === '2D' && <CameraCanvas />}
-            {viewMode === '3D' && <AstronautViewer className="w-full aspect-video min-h-[360px]" />}
-            {viewMode === 'DUAL' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                <CameraCanvas />
-                <AstronautViewer className="w-full aspect-video min-h-[300px]" />
-              </div>
-            )}
-          </div>
+          {/* Live Pipeline Strip */}
+          <ErrorBoundary fallbackTitle="Pipeline Strip Notice">
+            <PipelineStrip />
+          </ErrorBoundary>
         </div>
 
-        {/* Right Col: Telemetry Cards (Target / Simulated) */}
-        <div className="space-y-3">
-          <div className="isro-card p-3.5 bg-white dark:bg-[#0A1A33] space-y-3 font-mono text-xs">
-            <h3 className="isro-section-title mb-0 text-xs font-mono">
-              Live Telemetry (Target / Simulated)
-            </h3>
-
-            <div className="grid grid-cols-2 gap-2.5">
-              <div className="p-2.5 bg-[#F5F7FA] dark:bg-slate-900 rounded border border-[#D5DCE6] dark:border-slate-800">
-                <span className="text-[10px] text-[#5B6675] block">FPS (TARGET/SIM)</span>
-                <span className="text-xl font-bold text-[#123F8C] dark:text-cyan-300">{fps}</span>
-              </div>
-
-              <div className="p-2.5 bg-[#F5F7FA] dark:bg-slate-900 rounded border border-[#D5DCE6] dark:border-slate-800">
-                <span className="text-[10px] text-[#5B6675] block">LATENCY (TARGET/SIM)</span>
-                <span className="text-xl font-bold text-[#F26B21]">{latency} ms</span>
-              </div>
-
-              <div className="p-2.5 bg-[#F5F7FA] dark:bg-slate-900 rounded border border-[#D5DCE6] dark:border-slate-800">
-                <span className="text-[10px] text-[#5B6675] block">CURRENT STEP</span>
-                <span className="text-lg font-bold text-[#0B2A5B] dark:text-white">STEP {currentStep} / 3</span>
-              </div>
-
-              <div className="p-2.5 bg-[#F5F7FA] dark:bg-slate-900 rounded border border-[#D5DCE6] dark:border-slate-800">
-                <span className="text-[10px] text-[#5B6675] block">TRACKING STATUS</span>
-                <span className="text-sm font-bold text-[#138808]">{trackingStatus}</span>
-              </div>
-            </div>
-
-            <div className="pt-2 border-t border-[#EEF3FA] dark:border-slate-800 space-y-1.5">
-              <span className="text-xs font-bold text-[#0B2A5B] dark:text-slate-200 block">
-                Edge AI Pipeline Stack
+        {/* RIGHT 4 COLS: PROTOCOL STEPPER & 6-TILE DEMO ICON GRID */}
+        <div className="lg:col-span-4 space-y-2">
+          {/* Vertical Protocol Stepper Timeline */}
+          <div className="isro-card p-3 bg-white dark:bg-[#0A1A33] space-y-2.5">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-1.5">
+              <h3 className="text-xs font-bold text-slate-100 uppercase tracking-wider flex items-center gap-1.5">
+                <Clock size={13} className="text-orange-400" />
+                <span>Protocol Execution Timeline</span>
+              </h3>
+              <span className="text-[10px] font-sans font-bold text-cyan-400 bg-slate-800 px-2 py-0.5 rounded">
+                FSM: {fsmState}
               </span>
-              <ul className="space-y-1 text-[11px] text-[#5B6675] dark:text-slate-300">
-                <li>• Detector: YOLO26n (edge, NMS-free)</li>
-                <li>• Pose Engine: Rack-Frame Transformed 3D Pose</li>
-                <li>• Verification: Causal 3-Way Evidence Agreement</li>
-                <li>• Fusion: Dempster-Shafer with Conflict Isolation</li>
-                <li>• Sequence: Deterministic Finite State Machine</li>
-              </ul>
+            </div>
+
+            {/* Stepper Timeline List */}
+            <div className="space-y-2">
+              {/* Step 1 */}
+              <div className={`p-2 rounded border text-xs transition-all ${
+                completedSteps.includes(1)
+                  ? 'bg-emerald-950/40 border-emerald-600/60 text-emerald-300'
+                  : currentStep === 1
+                  ? 'bg-slate-800 border-orange-500 text-white font-bold'
+                  : 'bg-slate-900 border-slate-800 text-slate-400'
+              }`}>
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-[11px]">Step 01 — Open Red Experiment Box</span>
+                  {completedSteps.includes(1) ? (
+                    <span className="text-emerald-400 font-bold text-[10px] flex items-center gap-1">
+                      <CheckCircle2 size={12} /> Done
+                    </span>
+                  ) : currentStep === 1 ? (
+                    <span className="text-orange-400 font-bold text-[10px]">● Active</span>
+                  ) : (
+                    <span className="text-slate-500 text-[10px]">Pending</span>
+                  )}
+                </div>
+                <div className="text-[10px] text-slate-400 mt-1 font-mono">
+                  Evidence: Physical Lid Displacement Confirmed (BF K=48.0)
+                </div>
+              </div>
+
+              {/* Step 2 */}
+              <div className={`p-2 rounded border text-xs transition-all ${
+                completedSteps.includes(2)
+                  ? 'bg-emerald-950/40 border-emerald-600/60 text-emerald-300'
+                  : currentStep === 2
+                  ? 'bg-slate-800 border-orange-500 text-white font-bold'
+                  : 'bg-slate-900 border-slate-800 text-slate-400'
+              }`}>
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-[11px]">Step 02 — Remove Yellow Container</span>
+                  {completedSteps.includes(2) ? (
+                    <span className="text-emerald-400 font-bold text-[10px] flex items-center gap-1">
+                      <CheckCircle2 size={12} /> Done
+                    </span>
+                  ) : currentStep === 2 ? (
+                    <span className="text-orange-400 font-bold text-[10px]">● Active</span>
+                  ) : (
+                    <span className="text-slate-500 text-[10px]">Pending</span>
+                  )}
+                </div>
+                <div className="text-[10px] text-slate-400 mt-1 font-mono">
+                  Evidence: HOI Vector Grasp + Rack Coordinates Shift
+                </div>
+              </div>
+
+              {/* Step 3 */}
+              <div className={`p-2 rounded border text-xs transition-all ${
+                completedSteps.includes(3)
+                  ? 'bg-emerald-950/40 border-emerald-600/60 text-emerald-300'
+                  : currentStep === 3
+                  ? 'bg-slate-800 border-orange-500 text-white font-bold'
+                  : 'bg-slate-900 border-slate-800 text-slate-400'
+              }`}>
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-[11px]">Step 03 — Place Container in Rack</span>
+                  {completedSteps.includes(3) ? (
+                    <span className="text-emerald-400 font-bold text-[10px] flex items-center gap-1">
+                      <CheckCircle2 size={12} /> Done
+                    </span>
+                  ) : currentStep === 3 ? (
+                    <span className="text-orange-400 font-bold text-[10px]">● Active</span>
+                  ) : (
+                    <span className="text-slate-500 text-[10px]">Pending</span>
+                  )}
+                </div>
+                <div className="text-[10px] text-slate-400 mt-1 font-mono">
+                  Evidence: Container Locked in Target Rack Slot (99.1%)
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 6-TILE DEMO ICON GRID (Titles ≤ 4 words) */}
+          <div className="isro-card p-3 bg-white dark:bg-[#0A1A33] space-y-2">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-1.5">
+              <h3 className="text-xs font-bold text-slate-100 uppercase tracking-wider flex items-center gap-1.5">
+                <Zap size={13} className="text-orange-400" />
+                <span>Interactive Live Demos</span>
+              </h3>
+              <span className="text-[9px] font-sans text-slate-400">Click tile to test</span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+              {/* Tile 1 */}
+              <div
+                onClick={() => handleTileDemo(1, triggerHandNearObjectNoStateChange)}
+                className={`p-2 rounded border text-xs cursor-pointer transition-all flex flex-col justify-between h-20 ${
+                  activeDemoTile === 1
+                    ? 'border-red-500 bg-red-950/60 ring-2 ring-red-500'
+                    : 'border-slate-800 bg-slate-900 hover:border-orange-500 hover:bg-slate-800/80'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <Hand size={14} className="text-red-400" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                </div>
+                <span className="font-semibold text-[11px] text-slate-200 leading-tight">
+                  Hand Near Object
+                </span>
+                <span className="text-[9px] text-slate-400">Causal Reject</span>
+              </div>
+
+              {/* Tile 2 */}
+              <div
+                onClick={() => handleTileDemo(2, randomizeOrientation)}
+                className={`p-2 rounded border text-xs cursor-pointer transition-all flex flex-col justify-between h-20 ${
+                  activeDemoTile === 2
+                    ? 'border-cyan-500 bg-cyan-950/60 ring-2 ring-cyan-500'
+                    : 'border-slate-800 bg-slate-900 hover:border-orange-500 hover:bg-slate-800/80'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <Move3d size={14} className="text-cyan-400" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+                </div>
+                <span className="font-semibold text-[11px] text-slate-200 leading-tight">
+                  No Fixed Up/Down
+                </span>
+                <span className="text-[9px] text-slate-400">Random Rotate</span>
+              </div>
+
+              {/* Tile 3 */}
+              <div
+                onClick={() => handleTileDemo(3, triggerSensorDisagreement)}
+                className={`p-2 rounded border text-xs cursor-pointer transition-all flex flex-col justify-between h-20 ${
+                  activeDemoTile === 3
+                    ? 'border-amber-500 bg-amber-950/60 ring-2 ring-amber-500'
+                    : 'border-slate-800 bg-slate-900 hover:border-orange-500 hover:bg-slate-800/80'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <Sliders size={14} className="text-amber-400" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                </div>
+                <span className="font-semibold text-[11px] text-slate-200 leading-tight">
+                  Sensor Disagreement
+                </span>
+                <span className="text-[9px] text-slate-400">DS Conflict</span>
+              </div>
+
+              {/* Tile 4 */}
+              <div
+                onClick={() => handleTileDemo(4, injectBitFlip)}
+                className={`p-2 rounded border text-xs cursor-pointer transition-all flex flex-col justify-between h-20 ${
+                  activeDemoTile === 4
+                    ? 'border-purple-500 bg-purple-950/60 ring-2 ring-purple-500'
+                    : 'border-slate-800 bg-slate-900 hover:border-orange-500 hover:bg-slate-800/80'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <Zap size={14} className="text-purple-400" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
+                </div>
+                <span className="font-semibold text-[11px] text-slate-200 leading-tight">
+                  Radiation Bit-Flip
+                </span>
+                <span className="text-[9px] text-slate-400">TMR Scrubbing</span>
+              </div>
+
+              {/* Tile 5 */}
+              <div
+                onClick={() => handleTileDemo(5, () => setThermalThrottlePercent(65))}
+                className={`p-2 rounded border text-xs cursor-pointer transition-all flex flex-col justify-between h-20 ${
+                  activeDemoTile === 5
+                    ? 'border-orange-500 bg-orange-950/60 ring-2 ring-orange-500'
+                    : 'border-slate-800 bg-slate-900 hover:border-orange-500 hover:bg-slate-800/80'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <Flame size={14} className="text-orange-400" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-orange-400" />
+                </div>
+                <span className="font-semibold text-[11px] text-slate-200 leading-tight">
+                  Thermal Throttle
+                </span>
+                <span className="text-[9px] text-slate-400">dt Continuity</span>
+              </div>
+
+              {/* Tile 6 */}
+              <div
+                onClick={() => handleTileDemo(6, () => { triggerObjectLost(); setTimeout(recoverTracking, 2000); })}
+                className={`p-2 rounded border text-xs cursor-pointer transition-all flex flex-col justify-between h-20 ${
+                  activeDemoTile === 6
+                    ? 'border-emerald-500 bg-emerald-950/60 ring-2 ring-emerald-500'
+                    : 'border-slate-800 bg-slate-900 hover:border-orange-500 hover:bg-slate-800/80'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <Target size={14} className="text-emerald-400" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                </div>
+                <span className="font-semibold text-[11px] text-slate-200 leading-tight">
+                  Occlusion Recovery
+                </span>
+                <span className="text-[9px] text-slate-400">Re-Identify</span>
+              </div>
             </div>
           </div>
         </div>
