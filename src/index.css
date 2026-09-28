@@ -18,8 +18,8 @@
 
 @layer base {
   body {
-    @apply bg-isro-bg text-isro-text antialiased selection:bg-isro-orange selection:text-white;
-    font-family: 'Noto Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    @apply bg-isro-bg text-isro-text antialiased selection:bg-isro-orange selection:text-white text-xs;
+    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
   }
 
   .dark body {
@@ -27,7 +27,7 @@
   }
 
   .font-mono {
-    font-family: 'Consolas', 'Courier New', monospace;
+    font-family: 'JetBrains Mono', Consolas, monospace;
   }
 }
 
