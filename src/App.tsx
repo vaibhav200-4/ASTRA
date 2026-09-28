@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { MissionProvider } from './context/MissionContext';
+import React, { useState, useEffect } from 'react';
+import { MissionProvider, useMission } from './context/MissionContext';
 import { Header } from './components/Header';
 import { SidebarNav } from './components/SidebarNav';
 import { Footer } from './components/Footer';
@@ -22,6 +22,47 @@ import { AboutPage } from './pages/AboutPage';
 export const AppContent: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('overview');
   const [alertsOpen, setAlertsOpen] = useState<boolean>(false);
+  const { togglePlayPause } = useMission();
+
+  // Global Keyboard Shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't intercept when user is typing in form controls
+      if (
+        e.target instanceof HTMLInputElement || 
+        e.target instanceof HTMLTextAreaElement || 
+        e.target instanceof HTMLSelectElement
+      ) {
+        return;
+      }
+
+      // Page Navigation 1-9 & 0
+      if (e.key === '1') setActiveTab('overview');
+      else if (e.key === '2') setActiveTab('live');
+      else if (e.key === '3') setActiveTab('protocol');
+      else if (e.key === '4') setActiveTab('ai-monitor');
+      else if (e.key === '5') setActiveTab('pose');
+      else if (e.key === '6') setActiveTab('timeline');
+      else if (e.key === '7') setActiveTab('logs');
+      else if (e.key === '8') setActiveTab('system');
+      else if (e.key === '9') setActiveTab('architecture');
+      else if (e.key === '0') setActiveTab('about');
+      
+      // Spacebar Play/Pause Simulation
+      else if (e.code === 'Space') {
+        e.preventDefault();
+        togglePlayPause();
+      }
+
+      // Escape key closes open drawers
+      else if (e.key === 'Escape') {
+        setAlertsOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [togglePlayPause]);
 
   const renderActivePage = () => {
     switch (activeTab) {
