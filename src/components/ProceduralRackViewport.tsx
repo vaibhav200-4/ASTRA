@@ -1,8 +1,8 @@
 import React from 'react';
 import { useMission } from '../context/MissionContext';
 import { ProceduralRack2DCanvas } from './ProceduralRack2DCanvas';
-import { ProceduralAstronaut3D } from './ProceduralAstronaut3D';
-import { Play, Pause, FastForward, Activity, Maximize2, Monitor, Box } from 'lucide-react';
+import { AstronautViewer } from './AstronautViewer';
+import { Play, Pause, Activity, Monitor } from 'lucide-react';
 import type { ViewportMode } from '../types/mission';
 
 export const ProceduralRackViewport: React.FC = () => {
@@ -20,16 +20,16 @@ export const ProceduralRackViewport: React.FC = () => {
       <div className="flex items-center justify-between bg-slate-900/90 p-2 rounded-t border border-slate-800 text-xs">
         <div className="flex items-center space-x-2">
           <Monitor size={14} className="text-orange-400" />
-          <span className="font-semibold text-slate-200">PROCEDURAL RACK CAMERA VIEWPORT</span>
+          <span className="font-semibold text-slate-200 uppercase tracking-wider text-xs">Payload Rack Vision Viewport</span>
         </div>
 
         {/* View Mode Selector Chips */}
-        <div className="flex items-center space-x-1 font-mono text-[11px]">
+        <div className="flex items-center space-x-1 font-sans text-xs">
           {(['2D', '3D', 'DUAL'] as ViewportMode[]).map((mode) => (
             <button
               key={mode}
               onClick={() => setViewportMode(mode)}
-              className={`px-3 py-1 rounded font-bold transition-all ${
+              className={`px-2.5 py-1 rounded font-bold transition-all ${
                 viewportMode === mode
                   ? 'bg-orange-500 text-slate-950 shadow-sm font-extrabold'
                   : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white'
@@ -44,24 +44,24 @@ export const ProceduralRackViewport: React.FC = () => {
       {/* Main Viewport Content Display Area */}
       <div className="w-full bg-[#040814] border-x border-b border-slate-800 rounded-b p-1">
         {viewportMode === '2D' && (
-          <div className="w-full h-[380px]">
+          <div className="w-full h-[360px]">
             <ProceduralRack2DCanvas />
           </div>
         )}
 
         {viewportMode === '3D' && (
-          <div className="w-full h-[380px]">
-            <ProceduralAstronaut3D />
+          <div className="w-full h-[360px]">
+            <AstronautViewer className="w-full h-full min-h-[360px]" />
           </div>
         )}
 
         {viewportMode === 'DUAL' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 w-full h-[380px]">
-            <div className="h-full">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 w-full h-[360px]">
+            <div className="h-full min-h-[360px]">
               <ProceduralRack2DCanvas />
             </div>
-            <div className="h-full">
-              <ProceduralAstronaut3D />
+            <div className="h-full min-h-[360px]">
+              <AstronautViewer className="w-full h-full min-h-[360px]" />
             </div>
           </div>
         )}
