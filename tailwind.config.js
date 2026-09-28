@@ -8,48 +8,37 @@ export default {
   theme: {
     extend: {
       colors: {
-        darkbg: '#0a0e1a',
-        navy: {
-          950: '#040914',
-          900: '#080e1e',
-          850: '#0d1527',
-          800: '#111c35',
-          700: '#1a294b',
-          600: '#243763',
-          500: '#344c84',
+        isro: {
+          blue900: '#0B2A5B',
+          blue700: '#123F8C',
+          blue500: '#1D5BBF',
+          blue100: '#DDE7F7',
+          blue50:  '#EEF3FA',
+          orange:  '#F26B21',
+          saffron: '#FF9933',
+          green:   '#138808',
+          bg:      '#F5F7FA',
+          surface: '#FFFFFF',
+          border:  '#D5DCE6',
+          text:    '#1B2430',
+          muted:   '#5B6675',
+          
+          // Status colors
+          nominal:  '#138808',
+          warning:  '#D98200',
+          critical: '#C62828',
+          info:     '#123F8C',
         },
-        saffron: {
-          600: '#d96200',
-          500: '#f58220',
-          400: '#ff9933',
-          300: '#ffb870',
-          100: '#ffebd6',
-        },
-        cyan: {
-          400: '#22d3ee',
-          500: '#06b6d4',
-          600: '#0891b2',
-        },
-        emerald: {
-          400: '#34d399',
-          500: '#10b981',
-          600: '#059669',
-        },
-        amber: {
-          400: '#fbbf24',
-          500: '#f59e0b',
-          600: '#d97706',
-        },
-        red: {
-          400: '#f87171',
-          500: '#ef4444',
-          600: '#dc2626',
-        },
+        darknavy: {
+          bg: '#06101E',
+          surface: '#0A1A33',
+          border: '#1E293B',
+          card: '#0F2342',
+        }
       },
       fontFamily: {
-        sans: ['Inter', 'Space Grotesk', 'system-ui', 'sans-serif'],
-        mono: ['JetBrains Mono', 'Space Mono', 'monospace'],
-        display: ['Space Grotesk', 'Inter', 'sans-serif'],
+        sans: ['Noto Sans', 'Segoe UI', 'Roboto', 'Noto Sans Devanagari', 'system-ui', 'sans-serif'],
+        mono: ['Courier New', 'Consolas', 'JetBrains Mono', 'monospace'],
       }
     },
   },

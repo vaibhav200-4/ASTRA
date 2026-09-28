@@ -18,12 +18,17 @@ export type PoseOrientation = 'UPRIGHT' | 'TILTED' | 'ROTATED_90' | 'INVERTED' |
 
 export type PoseReference = 'RACK' | 'CAMERA';
 
+export type ViewportMode = '2D' | '3D' | 'DUAL';
+
 export interface OverlaySettings {
   boundingBoxes: boolean;
   skeleton: boolean;
   hoiLines: boolean;
   labels: boolean;
   confidence: boolean;
+  roi: boolean;
+  rackAxes: boolean;
+  heatmap: boolean;
 }
 
 export interface DetectionItem {

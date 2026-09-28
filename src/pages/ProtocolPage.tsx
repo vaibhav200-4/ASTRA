@@ -1,144 +1,182 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useMission } from '../context/MissionContext';
-import { FileText, CheckCircle2, Sliders, ShieldCheck, ArrowRight, Zap, Check } from 'lucide-react';
+import { FSM_NODES } from '../modules/fsmValidation';
+import { FileText, CheckCircle2, AlertTriangle, ShieldCheck, ArrowRight, Zap, RefreshCw, XCircle } from 'lucide-react';
 
 export const ProtocolPage: React.FC = () => {
-  const { currentStep, completedSteps, fsmState } = useMission();
-  const [selectedStep, setSelectedStep] = useState<number>(2);
+  const { 
+    currentStep, completedSteps, fsmState, expectedAction, observedAction,
+    fsmValidationResult, performWrongStep, skipCurrentStep, recoverTracking, language 
+  } = useMission();
 
-  const stepsData = [
-    {
-      id: 1,
-      name: "OPEN RED BOX",
-      fsm: "S1_OPEN_BOX",
-      requiredObject: "Red Experiment Box (BCE-OBJ-01)",
-      expectedInteraction: "Hand Lid Motion / Hinge Angle Delta > 45°",
-      trigger: "Red box opened — lid movement detected",
-      confidenceThreshold: "90.0%",
-      currentStatus: completedSteps.includes(1) ? "COMPLETED" : currentStep === 1 ? "CURRENT" : "WAITING",
-      details: "Astronaut grips lid handle of the primary red storage container and pulls upwards to unlatch safety pins."
-    },
-    {
-      id: 2,
-      name: "REMOVE YELLOW CONTAINER",
-      fsm: "S2_REMOVE_CONTAINER",
-      requiredObject: "Yellow Container (BCE-OBJ-02)",
-      expectedInteraction: "HAND → YELLOW CONTAINER (Grasp & Translation)",
-      trigger: "Container displacement vector out of red box origin",
-      confidenceThreshold: "85.0%",
-      currentStatus: completedSteps.includes(2) ? "COMPLETED" : currentStep === 2 ? "CURRENT" : "WAITING",
-      details: "Right hand keypoints lock onto yellow container bounding box, extracting sample canister from internal foam lining."
-    },
-    {
-      id: 3,
-      name: "PLACE CONTAINER IN RACK",
-      fsm: "S3_PLACE_CONTAINER",
-      requiredObject: "Payload Rack Slot #3 (BCE-SLOT-03)",
-      expectedInteraction: "CONTAINER → RACK SLOT (Insertion & Lock)",
-      trigger: "Container enters rack region & velocity drops to zero",
-      confidenceThreshold: "92.0%",
-      currentStatus: completedSteps.includes(3) ? "COMPLETED" : currentStep === 3 ? "CURRENT" : "WAITING",
-      details: "Yellow container is inserted into rack guide rails until mechanical micro-switch or visual boundary locks position."
+  const getTransitionBadge = (type: string, level: string) => {
+    if (level === 'NOMINAL') {
+      return <span className="px-2 py-0.5 rounded text-xs font-bold font-mono bg-emerald-50 text-[#138808] dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300">TRANSITION: VALID</span>;
     }
-  ];
+    if (type === 'SKIPPED') {
+      return <span className="px-2 py-0.5 rounded text-xs font-bold font-mono bg-red-50 text-[#C62828] dark:bg-red-950 dark:text-red-300 border border-red-300">TRANSITION: SKIPPED (CRITICAL)</span>;
+    }
+    if (type === 'OUT_OF_ORDER') {
+      return <span className="px-2 py-0.5 rounded text-xs font-bold font-mono bg-red-50 text-[#C62828] dark:bg-red-950 dark:text-red-300 border border-red-300">TRANSITION: OUT-OF-ORDER (CRITICAL)</span>;
+    }
+    return <span className="px-2 py-0.5 rounded text-xs font-bold font-mono bg-amber-50 text-[#D98200] dark:bg-amber-950 dark:text-amber-300 border border-amber-300">TRANSITION: REPEATED (WARNING)</span>;
+  };
 
   return (
-    <div className="space-y-5 font-sans">
-      {/* Title Header */}
-      <div className="glass-card bg-gradient-to-r from-slate-900 to-[#0d162a] text-white p-5 rounded-2xl shadow-xl border border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+    <div className="space-y-4 font-sans">
+      {/* Header Banner */}
+      <div className="isro-card p-4 bg-white dark:bg-[#0A1A33] border-l-4 border-l-[#123F8C] flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
         <div>
-          <div className="flex items-center space-x-2 text-amber-400 font-mono text-xs font-bold mb-1">
-            <FileText size={16} />
-            <span>BOX & CONTAINER EXPERIMENT (BCE-01)</span>
+          <div className="flex items-center space-x-2 text-[#123F8C] dark:text-cyan-400 font-mono text-xs font-semibold mb-0.5">
+            <FileText size={14} />
+            <span>PART E — PROTOCOL FSM VALIDATOR ENGINE</span>
           </div>
-          <h1 className="text-xl md:text-2xl font-extrabold font-mono tracking-tight text-white">
-            DETERMINISTIC EXPERIMENT PROTOCOL SPECIFICATION
+          <h1 className="text-lg font-bold text-[#0B2A5B] dark:text-white">
+            Finite State Machine Protocol Validator (ISRO BCE-01)
           </h1>
-          <p className="text-xs text-slate-400 mt-1 font-mono">
-            Finite state machine validation rules enforcing strict procedural compliance.
+          <p className="text-xs text-[#5B6675] dark:text-slate-300">
+            Enforces strict procedural compliance, detecting SKIPPED, REPEATED, OUT-OF-ORDER, and UNVERIFIED transitions.
           </p>
         </div>
 
-        <div className="bg-slate-950/80 px-4 py-2 rounded-xl border border-slate-800 font-mono text-xs text-right">
-          <span className="text-slate-400 block text-[10px]">VALIDATOR ENGINE</span>
-          <span className="font-bold text-emerald-400">FINITE STATE MACHINE (FSM)</span>
+        <div className="flex items-center space-x-2">
+          {getTransitionBadge(fsmValidationResult.transitionType, fsmValidationResult.alertLevel)}
         </div>
       </div>
 
-      {/* Protocol Step Cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {stepsData.map(step => (
-          <div 
-            key={step.id}
-            onClick={() => setSelectedStep(step.id)}
-            className={`glass-card p-5 rounded-2xl border cursor-pointer transition-all ${
-              selectedStep === step.id 
-                ? 'bg-cyan-950/40 border-cyan-500 shadow-[0_0_20px_rgba(6,182,212,0.2)]' 
-                : 'bg-slate-900/70 border-slate-800 hover:border-slate-700'
-            }`}
+      {/* FSM STATE DIAGRAM VISUALIZATION */}
+      <div className="isro-card p-4 bg-white dark:bg-[#0A1A33] space-y-3">
+        <h3 className="isro-section-title mb-0 text-xs font-mono">
+          FSM State Transition Diagram & Current Active Node
+        </h3>
+
+        {/* Diagram Nodes Row */}
+        <div className="p-3 bg-[#EEF3FA] dark:bg-slate-900 rounded border border-[#D5DCE6] dark:border-slate-800 flex items-center justify-between overflow-x-auto gap-2 text-xs font-mono">
+          {FSM_NODES.map((node, idx) => {
+            const isCurrent = fsmState === node.id || (node.id === 'COMPLETE' && fsmState === 'COMPLETE');
+            const isDone = completedSteps.includes(node.stepIndex);
+
+            return (
+              <React.Fragment key={node.id}>
+                <div 
+                  className={`p-2.5 rounded border flex flex-col items-center justify-center text-center min-w-[110px] transition-all ${
+                    fsmState === 'ERROR' && currentStep === node.stepIndex
+                      ? 'bg-red-50 border-red-500 text-[#C62828] dark:bg-red-950 dark:text-red-300 font-bold'
+                      : isCurrent
+                      ? 'bg-[#123F8C] border-[#123F8C] text-white font-bold shadow-sm'
+                      : isDone
+                      ? 'bg-emerald-50 border-emerald-300 text-[#138808] dark:bg-emerald-950 dark:text-emerald-300 font-semibold'
+                      : 'bg-white dark:bg-slate-800 border-[#D5DCE6] dark:border-slate-700 text-[#5B6675]'
+                  }`}
+                >
+                  <span className="font-bold text-[11px]">{node.label}</span>
+                  <span className="text-[9px] font-sans opacity-80">{node.description}</span>
+                </div>
+
+                {idx < FSM_NODES.length - 1 && (
+                  <ArrowRight size={16} className={isDone ? 'text-[#138808]' : 'text-slate-400'} />
+                )}
+              </React.Fragment>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* SIDE-BY-SIDE: EXPECTED VS OBSERVED SEQUENCE */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* EXPECTED SEQUENCE */}
+        <div className="isro-card p-4 bg-white dark:bg-[#0A1A33] space-y-3">
+          <div className="flex items-center justify-between border-b border-[#EEF3FA] dark:border-slate-800 pb-2">
+            <h3 className="isro-section-title mb-0 text-xs">
+              Expected Nominal Sequence
+            </h3>
+            <span className="text-[10px] font-mono text-[#138808] font-bold bg-emerald-50 dark:bg-emerald-950 px-2 py-0.5 rounded border border-emerald-300">
+              FSM Ground Truth
+            </span>
+          </div>
+
+          <div className="space-y-2 text-xs font-mono">
+            <div className="p-2.5 bg-[#F5F7FA] dark:bg-slate-900 rounded border border-[#D5DCE6] dark:border-slate-800">
+              <span className="text-[10px] text-[#5B6675] block">CURRENT ACTIVE STEP EXPECTATION</span>
+              <span className="font-bold text-[#0B2A5B] dark:text-white text-sm">{expectedAction}</span>
+            </div>
+
+            <div className="space-y-1 text-[11px]">
+              <div className="p-2 bg-white dark:bg-slate-950 rounded border border-[#D5DCE6] dark:border-slate-800 flex justify-between">
+                <span>01. Open Red Box Lid</span>
+                <span className="text-[#138808]">S0 → S1</span>
+              </div>
+              <div className="p-2 bg-white dark:bg-slate-950 rounded border border-[#D5DCE6] dark:border-slate-800 flex justify-between">
+                <span>02. Remove Yellow Container</span>
+                <span className="text-[#138808]">S1 → S2</span>
+              </div>
+              <div className="p-2 bg-white dark:bg-slate-950 rounded border border-[#D5DCE6] dark:border-slate-800 flex justify-between">
+                <span>03. Place Container in Rack Slot</span>
+                <span className="text-[#138808]">S2 → S3 → COMPLETE</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* OBSERVED SEQUENCE */}
+        <div className="isro-card p-4 bg-white dark:bg-[#0A1A33] space-y-3">
+          <div className="flex items-center justify-between border-b border-[#EEF3FA] dark:border-slate-800 pb-2">
+            <h3 className="isro-section-title mb-0 text-xs">
+              Observed Inference Sequence
+            </h3>
+            <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${
+              fsmState === 'ERROR' ? 'bg-red-50 text-[#C62828] border-red-300' : 'bg-[#EEF3FA] text-[#123F8C] border-[#D5DCE6]'
+            }`}>
+              {fsmState === 'ERROR' ? 'DEVIATION DETECTED' : 'SEQUENCE NOMINAL'}
+            </span>
+          </div>
+
+          <div className="space-y-2 text-xs font-mono">
+            <div className="p-2.5 bg-[#F5F7FA] dark:bg-slate-900 rounded border border-[#D5DCE6] dark:border-slate-800">
+              <span className="text-[10px] text-[#5B6675] block">OBSERVED ACTION & TRANSITION</span>
+              <span className="font-bold text-[#123F8C] dark:text-cyan-300 text-sm">{observedAction}</span>
+            </div>
+
+            <div className="p-2.5 bg-[#EEF3FA] dark:bg-slate-900 rounded border border-[#D5DCE6] dark:border-slate-800 space-y-1">
+              <span className="text-[10px] text-[#5B6675] font-bold block">VALIDATOR RESULT LOG:</span>
+              <p className="text-xs font-semibold text-[#0B2A5B] dark:text-slate-200">{fsmValidationResult.message}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* SIMULATION TEST CONTROLS */}
+      <div className="isro-card p-3.5 bg-white dark:bg-[#0A1A33] flex flex-wrap items-center justify-between gap-3 text-xs font-mono">
+        <span className="font-bold text-[#0B2A5B] dark:text-slate-200">
+          Simulate FSM Deviations:
+        </span>
+
+        <div className="flex items-center space-x-2">
+          <button 
+            onClick={performWrongStep}
+            className="btn-isro-outline"
           >
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
-              <span className="font-mono font-bold text-xs text-amber-400 bg-amber-950/60 border border-amber-800/60 px-2.5 py-0.5 rounded-md">
-                STEP 0{step.id}
-              </span>
-              <span className={`font-mono font-bold text-xs flex items-center space-x-1 ${
-                step.currentStatus === 'COMPLETED' ? 'text-emerald-400' :
-                step.currentStatus === 'CURRENT' ? 'text-amber-400 animate-pulse' :
-                'text-slate-500'
-              }`}>
-                <span className={`w-2 h-2 rounded-full ${step.currentStatus === 'COMPLETED' ? 'bg-emerald-400' : step.currentStatus === 'CURRENT' ? 'bg-amber-400 animate-ping' : 'bg-slate-600'}`}></span>
-                <span>{step.currentStatus}</span>
-              </span>
-            </div>
+            <AlertTriangle size={13} className="text-[#C62828]" />
+            <span>Simulate Wrong Step</span>
+          </button>
 
-            <h3 className="font-bold font-mono text-sm text-white mb-2">{step.name}</h3>
+          <button 
+            onClick={skipCurrentStep}
+            className="btn-isro-outline"
+          >
+            <XCircle size={13} className="text-[#D98200]" />
+            <span>Simulate Skip Step</span>
+          </button>
 
-            <div className="space-y-2 text-xs font-mono text-slate-300">
-              <div>
-                <span className="text-slate-500 block text-[10px]">REQUIRED OBJECT</span>
-                <span className="text-slate-200 font-semibold">{step.requiredObject}</span>
-              </div>
-
-              <div>
-                <span className="text-slate-500 block text-[10px]">CONFIDENCE THRESHOLD</span>
-                <span className="text-amber-400 font-semibold">{step.confidenceThreshold}</span>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Step Detail Deep Dive */}
-      {selectedStep && (
-        <div className="glass-card p-6 rounded-2xl border border-slate-800 shadow-xl space-y-4 font-mono text-xs">
-          <h3 className="font-bold text-sm text-white border-b border-slate-800 pb-2 flex items-center justify-between">
-            <span>REQUIREMENT SPECIFICATION: STEP 0{selectedStep}</span>
-            <span className="text-amber-400">FSM STATE: {stepsData[selectedStep - 1].fsm}</span>
-          </h3>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-3 bg-slate-950/80 p-4 rounded-xl border border-slate-800">
-              <div>
-                <span className="text-slate-500 text-[10px] block">EXPECTED HAND-OBJECT INTERACTION</span>
-                <span className="font-bold text-cyan-300 text-sm">{stepsData[selectedStep - 1].expectedInteraction}</span>
-              </div>
-              <div>
-                <span className="text-slate-500 text-[10px] block">STATE TRANSITION TRIGGER</span>
-                <span className="font-bold text-emerald-400">{stepsData[selectedStep - 1].trigger}</span>
-              </div>
-            </div>
-
-            <div className="space-y-3 bg-slate-950/80 p-4 rounded-xl border border-slate-800">
-              <div>
-                <span className="text-slate-500 text-[10px] block">PROCEDURAL DESCRIPTION</span>
-                <p className="text-slate-300 leading-relaxed font-sans text-xs mt-1">
-                  {stepsData[selectedStep - 1].details}
-                </p>
-              </div>
-            </div>
-          </div>
+          <button 
+            onClick={recoverTracking}
+            className="btn-isro-primary"
+          >
+            <RefreshCw size={13} />
+            <span>Recover FSM State</span>
+          </button>
         </div>
-      )}
+      </div>
     </div>
   );
 };

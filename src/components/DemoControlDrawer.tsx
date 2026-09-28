@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
 import { useMission } from '../context/MissionContext';
-import { Play, AlertTriangle, FastForward, EyeOff, ShieldAlert, RefreshCw, ChevronUp, ChevronDown, Sparkles, Sliders } from 'lucide-react';
+import { 
+  Play, AlertTriangle, FastForward, EyeOff, ShieldAlert, RefreshCw, 
+  ChevronUp, ChevronDown, Sliders, Cpu, RotateCw, Volume2, Flame
+} from 'lucide-react';
 
 export const DemoControlDrawer: React.FC = () => {
   const { 
     demoMode, performCorrectStep, performWrongStep, skipCurrentStep, 
     triggerObjectLost, triggerLowConfidence, recoverTracking, resetMission,
-    currentStep, fsmState, missionStatus 
+    triggerHandNearObjectNoStateChange, triggerSensorDisagreement, randomizeOrientation,
+    thermalThrottlePercent, setThermalThrottlePercent, injectBitFlip,
+    triggerSpatialBeepForMisplacedTool, currentStep, fsmState, missionStatus 
   } = useMission();
 
   const [isExpanded, setIsExpanded] = useState<boolean>(true);
@@ -14,106 +19,174 @@ export const DemoControlDrawer: React.FC = () => {
   if (demoMode !== 'SIMULATION') return null;
 
   return (
-    <div className="fixed bottom-3 right-4 z-40 max-w-xl w-full sm:w-auto font-sans animate-in fade-in slide-in-from-bottom duration-300">
-      <div className="glass-card bg-[#080d19]/95 backdrop-blur-md border-2 border-amber-500/80 rounded-2xl shadow-[0_0_30px_rgba(245,158,11,0.25)] overflow-hidden text-white">
-        {/* Drawer Header Toggle */}
+    <div className="fixed bottom-3 right-4 z-40 max-w-2xl w-full sm:w-auto font-sans">
+      <div className="bg-white dark:bg-[#0A1A33] border border-[#D5DCE6] dark:border-slate-700 rounded-md shadow-lg overflow-hidden text-[#1B2430] dark:text-slate-100">
+        {/* Drawer Header */}
         <div 
           onClick={() => setIsExpanded(!isExpanded)}
-          className="bg-slate-950/90 px-4 py-2.5 flex items-center justify-between cursor-pointer border-b border-slate-800 select-none hover:bg-slate-900 transition-colors"
+          className="bg-[#EEF3FA] dark:bg-slate-900 px-3.5 py-2 flex items-center justify-between cursor-pointer border-b border-[#D5DCE6] dark:border-slate-800 select-none hover:bg-[#DDE7F7] dark:hover:bg-slate-800 transition-colors"
         >
           <div className="flex items-center space-x-2">
-            <Sparkles size={16} className="text-amber-400 animate-pulse" />
-            <span className="font-extrabold font-mono text-xs text-amber-400 tracking-wider">
-              DEMO & JUDGE SIMULATION CONTROLS
+            <span className="w-2 h-2 rounded-full bg-[#F26B21] animate-pulse"></span>
+            <span className="font-bold text-xs text-[#0B2A5B] dark:text-cyan-300">
+              SIMULATION CONTROLS & STRESS TESTS
             </span>
-            <span className="bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[9px] font-bold px-1.5 py-0.2 rounded font-mono">
-              LIVE SIM
+            <span className="bg-[#123F8C] text-white text-[10px] font-semibold px-1.5 py-0.2 rounded font-mono">
+              DEMO PANEL
             </span>
           </div>
 
           <div className="flex items-center space-x-3">
-            <span className="text-[11px] font-mono text-slate-300">
-              STEP {currentStep} | <span className="text-amber-400 font-bold">{fsmState}</span>
+            <span className="text-xs font-mono text-[#5B6675] dark:text-slate-300">
+              STEP {currentStep} | <span className="text-[#123F8C] dark:text-cyan-400 font-bold">{fsmState}</span>
             </span>
-            <button className="text-slate-400 hover:text-white p-0.5">
+            <button className="text-[#5B6675] dark:text-slate-400 hover:text-black dark:hover:text-white p-0.5">
               {isExpanded ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
             </button>
           </div>
         </div>
 
-        {/* Collapsible Action Buttons Panel */}
+        {/* Action Panel */}
         {isExpanded && (
-          <div className="p-3.5 bg-slate-950/80 space-y-2.5">
-            <p className="text-[11px] text-slate-400 font-mono leading-tight">
-              Interactive test controls: simulate valid step completion, protocol deviation alerts, object tracking loss, low confidence, and state machine recovery.
+          <div className="p-3 bg-white dark:bg-[#0A1A33] space-y-3">
+            <p className="text-xs text-[#5B6675] dark:text-slate-300 font-sans">
+              Interactive test controls: simulate causal rejection, Dempster-Shafer sensor disagreement, bit-flips, microgravity rotations, thermal throttle, and audio cueing.
             </p>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-              {/* Perform Correct Step */}
+            {/* Neutral Buttons with Colored Dots */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1.5">
+              {/* Correct Step */}
               <button
                 onClick={performCorrectStep}
                 disabled={missionStatus === 'COMPLETED'}
-                className="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 disabled:opacity-50 text-slate-950 font-extrabold text-xs rounded-xl shadow-lg flex items-center justify-center space-x-1.5 transition-all font-mono border border-emerald-400"
+                className="btn-sim-neutral"
               >
-                <Play size={14} className="fill-current" />
-                <span>CORRECT STEP</span>
+                <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
+                <span>Correct Step</span>
               </button>
 
-              {/* Perform Wrong Step */}
+              {/* Hand Near Object (No State Change) */}
+              <button
+                onClick={triggerHandNearObjectNoStateChange}
+                className="btn-sim-neutral"
+                title="Causal Verification Rejection Test"
+              >
+                <span className="w-2 h-2 rounded-full bg-red-600"></span>
+                <span>Hand Near (No Change)</span>
+              </button>
+
+              {/* Sensor Disagreement */}
+              <button
+                onClick={triggerSensorDisagreement}
+                className="btn-sim-neutral"
+                title="Inject HOI sensor conflict into Dempster-Shafer engine"
+              >
+                <span className="w-2 h-2 rounded-full bg-amber-600"></span>
+                <span>Sensor Disagree</span>
+              </button>
+
+              {/* Inject Bit-Flip */}
+              <button
+                onClick={injectBitFlip}
+                className="btn-sim-neutral"
+                title="Inject bit-flip into TMR memory copy"
+              >
+                <span className="w-2 h-2 rounded-full bg-purple-600"></span>
+                <span>Inject Bit-Flip</span>
+              </button>
+
+              {/* Randomize Orientation */}
+              <button
+                onClick={randomizeOrientation}
+                className="btn-sim-neutral"
+                title="Apply random 3D rotation in camera frame"
+              >
+                <span className="w-2 h-2 rounded-full bg-blue-600"></span>
+                <span>Random Rotation</span>
+              </button>
+
+              {/* Spatial Audio Beep */}
+              <button
+                onClick={triggerSpatialBeepForMisplacedTool}
+                className="btn-sim-neutral"
+                title="Play 3D HRTF spatial audio cue"
+              >
+                <span className="w-2 h-2 rounded-full bg-[#F26B21]"></span>
+                <span>Spatial Audio</span>
+              </button>
+
+              {/* Wrong Step */}
               <button
                 onClick={performWrongStep}
-                className="px-3 py-2 bg-red-600 hover:bg-red-500 active:bg-red-700 text-white font-extrabold text-xs rounded-xl shadow-lg flex items-center justify-center space-x-1.5 transition-all font-mono border border-red-400"
+                className="btn-sim-neutral"
               >
-                <AlertTriangle size={14} />
-                <span>WRONG STEP</span>
+                <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                <span>Wrong Step</span>
               </button>
 
-              {/* Skip Current Step */}
+              {/* Skip Step */}
               <button
                 onClick={skipCurrentStep}
-                className="px-3 py-2 bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-slate-950 font-extrabold text-xs rounded-xl shadow-lg flex items-center justify-center space-x-1.5 transition-all font-mono border border-amber-400"
+                className="btn-sim-neutral"
               >
-                <FastForward size={14} />
-                <span>SKIP STEP</span>
+                <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                <span>Skip Step</span>
               </button>
 
               {/* Object Lost */}
               <button
                 onClick={triggerObjectLost}
-                className="px-3 py-2 bg-slate-900 hover:bg-slate-800 text-slate-200 font-bold text-xs rounded-xl shadow flex items-center justify-center space-x-1.5 transition-all font-mono border border-slate-700"
+                className="btn-sim-neutral"
               >
-                <EyeOff size={14} className="text-slate-400" />
-                <span>OBJECT LOST</span>
+                <span className="w-2 h-2 rounded-full bg-slate-500"></span>
+                <span>Object Lost</span>
               </button>
 
-              {/* Low Confidence */}
+              {/* Low Conf */}
               <button
                 onClick={triggerLowConfidence}
-                className="px-3 py-2 bg-purple-950/80 hover:bg-purple-900 text-purple-200 font-bold text-xs rounded-xl shadow flex items-center justify-center space-x-1.5 transition-all font-mono border border-purple-800"
+                className="btn-sim-neutral"
               >
-                <ShieldAlert size={14} className="text-purple-400" />
-                <span>LOW CONF</span>
+                <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
+                <span>Low Confidence</span>
               </button>
 
-              {/* Recover Tracking */}
+              {/* Recover */}
               <button
                 onClick={recoverTracking}
-                className="px-3 py-2 bg-cyan-950/80 hover:bg-cyan-900 text-cyan-300 font-bold text-xs rounded-xl shadow flex items-center justify-center space-x-1.5 transition-all font-mono border border-cyan-700"
+                className="btn-sim-neutral col-span-2"
               >
-                <RefreshCw size={14} className="text-cyan-400" />
-                <span>RECOVER</span>
+                <span className="w-2 h-2 rounded-full bg-teal-500"></span>
+                <span>Recover Tracking</span>
               </button>
             </div>
 
-            {/* Quick Reset Link */}
-            <div className="flex items-center justify-between text-[10px] pt-1.5 border-t border-slate-800/80 text-slate-400 font-mono">
-              <span>Jetson Xavier Edge AI Emulator</span>
+            {/* Thermal Throttle Slider */}
+            <div className="pt-2 border-t border-[#EEF3FA] dark:border-slate-800 flex items-center justify-between gap-3 text-xs">
+              <div className="flex items-center gap-1.5 font-semibold text-[#0B2A5B] dark:text-slate-200">
+                <Flame size={14} className="text-[#F26B21]" />
+                <span>Simulate Thermal Throttle:</span>
+                <span className="font-mono text-[#F26B21]">{thermalThrottlePercent}%</span>
+              </div>
+              <input 
+                type="range"
+                min="0"
+                max="100"
+                value={thermalThrottlePercent}
+                onChange={(e) => setThermalThrottlePercent(Number(e.target.value))}
+                className="w-36 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-[#F26B21]"
+              />
+            </div>
+
+            {/* Footer Note */}
+            <div className="flex items-center justify-between text-[11px] pt-1.5 border-t border-[#EEF3FA] dark:border-slate-800 text-[#5B6675] dark:text-slate-400 font-mono">
+              <span>Jetson-class edge platform (emulated)</span>
               <button 
                 onClick={resetMission}
-                className="text-amber-400 hover:text-amber-300 font-bold flex items-center space-x-1 transition-colors"
+                className="text-[#123F8C] dark:text-cyan-400 hover:underline font-semibold flex items-center gap-1"
               >
-                <RefreshCw size={12} />
-                <span>Reset Simulation</span>
+                <RefreshCw size={11} />
+                <span>Reset State</span>
               </button>
             </div>
           </div>
