@@ -17,22 +17,22 @@ export const ProceduralRackViewport: React.FC = () => {
   return (
     <div className="flex flex-col space-y-2 w-full font-sans">
       {/* Viewport Header Toolbar with View Mode Selector */}
-      <div className="flex items-center justify-between bg-slate-900/90 p-2 rounded-t border border-slate-800 text-xs">
+      <div className="flex items-center justify-between bg-[#0A1A33]/90 backdrop-blur-sm p-2.5 rounded-t border border-slate-800 text-xs">
         <div className="flex items-center space-x-2">
-          <Monitor size={14} className="text-orange-400" />
-          <span className="font-semibold text-slate-200 uppercase tracking-wider text-xs">Payload Rack Vision Viewport</span>
+          <Monitor size={15} className="text-[#FFA366]" />
+          <span className="font-semibold text-[#F1F5F9] uppercase tracking-wider text-xs font-sans">Payload Rack Vision Viewport</span>
         </div>
 
         {/* View Mode Selector Chips */}
-        <div className="flex items-center space-x-1 font-sans text-xs">
+        <div className="flex items-center space-x-1.5 font-sans text-xs">
           {(['2D', '3D', 'DUAL'] as ViewportMode[]).map((mode) => (
             <button
               key={mode}
               onClick={() => setViewportMode(mode)}
-              className={`px-2.5 py-1 rounded font-bold transition-all ${
+              className={`px-3 py-1 rounded font-bold transition-all ${
                 viewportMode === mode
-                  ? 'bg-orange-500 text-slate-950 shadow-sm font-extrabold'
-                  : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white'
+                  ? 'bg-[#F26B21] text-white shadow-sm font-extrabold'
+                  : 'bg-slate-800 text-[#B8C4D6] hover:bg-slate-700 hover:text-white'
               }`}
             >
               {mode === 'DUAL' ? '2D / 3D DUAL' : `${mode} VIEW`}
@@ -68,12 +68,12 @@ export const ProceduralRackViewport: React.FC = () => {
       </div>
 
       {/* Playback Control Bar */}
-      <div className="bg-slate-900/90 p-2.5 rounded border border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs font-mono">
+      <div className="bg-[#0A1A33]/90 backdrop-blur-sm p-2.5 rounded border border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs font-mono">
         {/* Play/Pause & Scrub Slider */}
         <div className="flex items-center space-x-3 flex-1 min-w-[280px]">
           <button
             onClick={togglePlayPause}
-            className="p-1.5 rounded bg-orange-500 hover:bg-orange-600 text-slate-950 font-bold transition-colors shadow-sm"
+            className="p-1.5 rounded bg-[#F26B21] hover:bg-[#d95914] text-white font-bold transition-colors shadow-sm"
             title={isPlaying ? 'Pause Simulation Timeline' : 'Play Simulation Timeline'}
           >
             {isPlaying ? <Pause size={14} /> : <Play size={14} />}
@@ -81,16 +81,16 @@ export const ProceduralRackViewport: React.FC = () => {
 
           {/* Timeline Scrub Slider */}
           <div className="flex-1 flex items-center space-x-2">
-            <span className="text-[10px] text-slate-400">FRAME</span>
+            <span className="text-xs font-bold text-[#B8C4D6]">FRAME</span>
             <input
               type="range"
               min="0"
               max="300"
               value={timelineFrame}
               onChange={(e) => setTimelineFrame(Number(e.target.value))}
-              className="flex-1 h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-orange-500"
+              className="flex-1 h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-[#F26B21]"
             />
-            <span className="text-[11px] font-bold text-orange-400 w-12 text-right">
+            <span className="text-xs font-bold text-[#FFA366] w-12 text-right">
               #{timelineFrame.toString().padStart(3, '0')}
             </span>
           </div>
@@ -99,16 +99,16 @@ export const ProceduralRackViewport: React.FC = () => {
         {/* Speed Controls & FPS Counter */}
         <div className="flex items-center space-x-3">
           {/* Speed Buttons */}
-          <div className="flex items-center space-x-1 text-[10px]">
-            <span className="text-slate-500 mr-1">SPEED:</span>
+          <div className="flex items-center space-x-1 text-xs">
+            <span className="text-[#B8C4D6] mr-1 font-bold">SPEED:</span>
             {([0.5, 1, 2] as const).map((spd) => (
               <button
                 key={spd}
                 onClick={() => setPlaybackSpeed(spd)}
                 className={`px-2 py-0.5 rounded font-bold transition-all ${
                   playbackSpeed === spd
-                    ? 'bg-slate-700 text-cyan-300 border border-cyan-500/50'
-                    : 'bg-slate-950 text-slate-400 hover:text-white'
+                    ? 'bg-slate-700 text-[#7DD3FC] border border-[#7DD3FC]/50'
+                    : 'bg-slate-950 text-[#B8C4D6] hover:text-white'
                 }`}
               >
                 {spd}x
@@ -117,8 +117,8 @@ export const ProceduralRackViewport: React.FC = () => {
           </div>
 
           {/* FPS Badge */}
-          <div className="bg-slate-950 px-2.5 py-1 rounded border border-slate-800 text-[10px] text-cyan-400 font-bold flex items-center gap-1">
-            <Activity size={12} className="text-cyan-400 animate-pulse" />
+          <div className="bg-slate-950 px-2.5 py-1 rounded border border-slate-800 text-xs text-[#7DD3FC] font-bold flex items-center gap-1">
+            <Activity size={13} className="text-[#7DD3FC] animate-pulse" />
             <span>{fps.toFixed(1)} FPS</span>
           </div>
         </div>

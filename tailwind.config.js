@@ -8,6 +8,26 @@ export default {
   theme: {
     extend: {
       colors: {
+        // Semantic Token Palette
+        'text-on-dark': '#F1F5F9',
+        'text-on-dark-muted': '#B8C4D6',
+        'accent-on-dark': '#FFA366',
+        'link-on-dark': '#7DD3FC',
+        'text-on-light': '#1B2430',
+        'text-on-light-muted': '#4A5568',
+
+        // Status Colors (Dark / Light)
+        status: {
+          nominalDark: '#4ADE80',
+          warningDark: '#FBBF24',
+          criticalDark: '#FF6B6B',
+          infoDark: '#7DD3FC',
+          nominalLight: '#0F6B06',
+          warningLight: '#8A5300',
+          criticalLight: '#B71C1C',
+          infoLight: '#123F8C',
+        },
+
         isro: {
           blue900: '#0B2A5B',
           blue700: '#123F8C',
@@ -21,13 +41,7 @@ export default {
           surface: '#FFFFFF',
           border:  '#D5DCE6',
           text:    '#1B2430',
-          muted:   '#5B6675',
-          
-          // Status colors
-          nominal:  '#138808',
-          warning:  '#D98200',
-          critical: '#C62828',
-          info:     '#123F8C',
+          muted:   '#4A5568',
         },
         darknavy: {
           bg: '#06101E',
@@ -37,8 +51,8 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['Noto Sans', 'Segoe UI', 'Roboto', 'Noto Sans Devanagari', 'system-ui', 'sans-serif'],
-        mono: ['Courier New', 'Consolas', 'JetBrains Mono', 'monospace'],
+        sans: ['Inter', 'Noto Sans', 'Segoe UI', 'Roboto', 'system-ui', 'sans-serif'],
+        mono: ['JetBrains Mono', 'Consolas', 'Courier New', 'monospace'],
       }
     },
   },

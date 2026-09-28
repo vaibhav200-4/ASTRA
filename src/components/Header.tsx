@@ -41,7 +41,7 @@ export const Header: React.FC<HeaderProps> = ({ setActiveTab, onOpenAlerts }) =>
       </div>
 
       {/* Slim Top Header Bar */}
-      <div className="bg-white dark:bg-[#0A1A33] text-[#1B2430] dark:text-slate-100 px-3 py-1.5 flex items-center justify-between">
+      <div className="bg-white dark:bg-[#0A1A33] text-[#1B2430] dark:text-[#F1F5F9] px-3 py-1.5 flex items-center justify-between">
         {/* Left: Emblem + ISRO Branding */}
         <div
           onClick={() => setActiveTab('overview')}
@@ -49,39 +49,39 @@ export const Header: React.FC<HeaderProps> = ({ setActiveTab, onOpenAlerts }) =>
         >
           <Emblem size={32} className="group-hover:scale-105 transition-transform" />
           <div className="flex items-center space-x-2">
-            <span className="font-extrabold text-base text-[#0B2A5B] dark:text-white tracking-tight">
+            <span className="font-bold text-base text-[#0B2A5B] dark:text-[#F1F5F9] tracking-tight">
               ASTRA-PVT
             </span>
-            <span className="text-[10px] bg-[#EEF3FA] dark:bg-slate-800 text-[#123F8C] dark:text-slate-200 font-semibold px-2 py-0.5 rounded border border-[#D5DCE6] dark:border-slate-700">
-              ISRO • Department of Space
+            <span className="text-xs bg-[#EEF3FA] dark:bg-slate-800 text-[#123F8C] dark:text-[#B8C4D6] font-semibold px-2.5 py-0.5 rounded border border-[#D5DCE6] dark:border-slate-700">
+              ISRO &bull; Department of Space
             </span>
           </div>
         </div>
 
         {/* Right: Telemetry, Clocks, & Controls */}
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 text-xs">
           {/* MET Display */}
-          <div className="hidden sm:flex items-center space-x-1 font-mono text-xs text-[#0B2A5B] dark:text-cyan-300 bg-[#EEF3FA] dark:bg-slate-900 px-2.5 py-1 rounded border border-[#D5DCE6] dark:border-slate-800">
-            <Clock size={11} className="text-[#123F8C] dark:text-cyan-400" />
-            <span className="font-bold">MET {metFormatted}</span>
+          <div className="hidden sm:flex items-center space-x-1.5 font-mono text-xs text-[#0B2A5B] dark:text-[#7DD3FC] bg-[#EEF3FA] dark:bg-slate-900 px-2.5 py-1 rounded border border-[#D5DCE6] dark:border-slate-800 font-bold">
+            <Clock size={13} className="text-[#123F8C] dark:text-[#7DD3FC]" />
+            <span>MET {metFormatted}</span>
           </div>
 
           {/* UTC Clock */}
-          <div className="hidden md:flex items-center space-x-1 font-mono text-xs text-[#123F8C] dark:text-slate-300 bg-[#EEF3FA] dark:bg-slate-900 px-2.5 py-1 rounded border border-[#D5DCE6] dark:border-slate-800">
+          <div className="hidden md:flex items-center space-x-1 font-mono text-xs text-[#123F8C] dark:text-[#B8C4D6] bg-[#EEF3FA] dark:bg-slate-900 px-2.5 py-1 rounded border border-[#D5DCE6] dark:border-slate-800 font-semibold">
             <span>{utcTime || '11:41:07 UTC'}</span>
           </div>
 
           {/* Status Badge */}
           <div className={`flex items-center space-x-1.5 px-2.5 py-1 rounded text-xs font-mono font-bold border ${
-            missionStatus === 'CRITICAL' ? 'bg-red-50 border-red-300 text-red-700 dark:bg-red-950/60 dark:border-red-800 dark:text-red-300' :
-            missionStatus === 'DEGRADED' ? 'bg-amber-50 border-amber-300 text-amber-800 dark:bg-amber-950/60 dark:border-amber-800 dark:text-amber-300' :
-            missionStatus === 'COMPLETED' ? 'bg-emerald-50 border-emerald-300 text-emerald-800 dark:bg-emerald-950/60 dark:border-emerald-800 dark:text-emerald-300' :
-            'bg-[#EEF3FA] border-[#D5DCE6] text-[#123F8C] dark:bg-slate-900 dark:border-slate-700 dark:text-cyan-300'
+            missionStatus === 'CRITICAL' ? 'bg-[#FFCDD2] border-red-400 text-[#B71C1C] dark:bg-[#7F1D1D] dark:border-red-600 dark:text-[#FF6B6B]' :
+            missionStatus === 'DEGRADED' ? 'bg-[#FEF3C7] border-amber-400 text-[#8A5300] dark:bg-[#78350F] dark:border-amber-600 dark:text-[#FBBF24]' :
+            missionStatus === 'COMPLETED' ? 'bg-[#DCFCE7] border-emerald-400 text-[#0F6B06] dark:bg-[#14532D] dark:border-emerald-600 dark:text-[#4ADE80]' :
+            'bg-[#EEF3FA] border-[#D5DCE6] text-[#123F8C] dark:bg-slate-900 dark:border-slate-700 dark:text-[#7DD3FC]'
           }`}>
             <span className={`w-2 h-2 rounded-full ${
               missionStatus === 'CRITICAL' ? 'bg-red-600 animate-pulse' :
               missionStatus === 'DEGRADED' ? 'bg-amber-600 animate-pulse' :
-              'bg-[#138808]'
+              'bg-[#138808] dark:bg-[#4ADE80]'
             }`} />
             <span>{missionStatus === 'COMPLETED' ? 'COMPLETE' : missionStatus}</span>
           </div>
@@ -90,20 +90,20 @@ export const Header: React.FC<HeaderProps> = ({ setActiveTab, onOpenAlerts }) =>
           <div className="flex items-center bg-[#EEF3FA] dark:bg-slate-900 border border-[#D5DCE6] dark:border-slate-700 rounded p-0.5">
             <button
               onClick={() => setLanguage('en')}
-              className={`px-2 py-0.5 text-xs font-bold rounded transition-colors ${
+              className={`px-2.5 py-0.5 text-xs font-bold rounded transition-colors ${
                 language === 'en'
                   ? 'bg-[#123F8C] text-white'
-                  : 'text-[#5B6675] dark:text-slate-300 hover:text-[#1B2430]'
+                  : 'text-[#4A5568] dark:text-[#B8C4D6] hover:text-[#1B2430] dark:hover:text-white'
               }`}
             >
               EN
             </button>
             <button
               onClick={() => setLanguage('hi')}
-              className={`px-2 py-0.5 text-xs font-bold rounded transition-colors ${
+              className={`px-2.5 py-0.5 text-xs font-bold rounded transition-colors ${
                 language === 'hi'
                   ? 'bg-[#123F8C] text-white'
-                  : 'text-[#5B6675] dark:text-slate-300 hover:text-[#1B2430]'
+                  : 'text-[#4A5568] dark:text-[#B8C4D6] hover:text-[#1B2430] dark:hover:text-white'
               }`}
             >
               HI
@@ -113,7 +113,7 @@ export const Header: React.FC<HeaderProps> = ({ setActiveTab, onOpenAlerts }) =>
           {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
-            className="p-1.5 bg-[#EEF3FA] dark:bg-slate-900 border border-[#D5DCE6] dark:border-slate-700 rounded text-[#123F8C] dark:text-slate-200 hover:bg-[#DDE7F7] transition-colors"
+            className="p-1.5 bg-[#EEF3FA] dark:bg-slate-900 border border-[#D5DCE6] dark:border-slate-700 rounded text-[#123F8C] dark:text-[#F1F5F9] hover:bg-[#DDE7F7] dark:hover:bg-slate-800 transition-colors"
             title={theme === 'light' ? "Switch to Mission Control Dark Theme" : "Switch to Light Theme"}
           >
             {theme === 'light' ? <Moon size={14} /> : <Sun size={14} />}
@@ -124,8 +124,8 @@ export const Header: React.FC<HeaderProps> = ({ setActiveTab, onOpenAlerts }) =>
             onClick={toggleVoiceMute}
             className={`p-1.5 rounded border transition-colors ${
               voiceMuted
-                ? 'bg-slate-100 dark:bg-slate-800 border-slate-300 text-slate-400'
-                : 'bg-[#EEF3FA] dark:bg-slate-900 border-[#D5DCE6] dark:border-slate-700 text-[#123F8C] dark:text-cyan-400'
+                ? 'bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-[#4A5568] dark:text-[#B8C4D6]'
+                : 'bg-[#EEF3FA] dark:bg-slate-900 border-[#D5DCE6] dark:border-slate-700 text-[#123F8C] dark:text-[#7DD3FC]'
             }`}
             title={voiceMuted ? "Voice Guidance Muted" : "Voice Guidance Active"}
           >
@@ -135,12 +135,12 @@ export const Header: React.FC<HeaderProps> = ({ setActiveTab, onOpenAlerts }) =>
           {/* Alert Center Button */}
           <button
             onClick={onOpenAlerts}
-            className="relative p-1.5 bg-[#EEF3FA] dark:bg-slate-900 border border-[#D5DCE6] dark:border-slate-700 rounded text-[#123F8C] dark:text-slate-200 hover:bg-[#DDE7F7] transition-colors"
+            className="relative p-1.5 bg-[#EEF3FA] dark:bg-slate-900 border border-[#D5DCE6] dark:border-slate-700 rounded text-[#123F8C] dark:text-[#F1F5F9] hover:bg-[#DDE7F7] dark:hover:bg-slate-800 transition-colors"
             title="Open Mission Alert Drawer"
           >
             <Bell size={14} />
             {unreadAlerts > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-600 text-white font-bold text-[9px] rounded-full flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#C62828] text-white font-bold text-[10px] rounded-full flex items-center justify-center">
                 {unreadAlerts}
               </span>
             )}
@@ -149,15 +149,15 @@ export const Header: React.FC<HeaderProps> = ({ setActiveTab, onOpenAlerts }) =>
           {/* Simulation Drawer Toggle */}
           <button
             onClick={() => setDemoMode(demoMode === 'SIMULATION' ? 'MONITORING' : 'SIMULATION')}
-            className={`px-2.5 py-1 text-xs font-semibold rounded border transition-colors flex items-center gap-1.5 ${
+            className={`px-2.5 py-1 text-xs font-bold rounded border transition-colors flex items-center gap-1.5 ${
               demoMode === 'SIMULATION'
                 ? 'bg-[#F26B21] text-white border-[#F26B21] hover:bg-[#d95914]'
-                : 'bg-[#EEF3FA] dark:bg-slate-900 text-[#5B6675] border-[#D5DCE6] dark:border-slate-700'
+                : 'bg-[#EEF3FA] dark:bg-slate-900 text-[#1B2430] dark:text-[#F1F5F9] border-[#D5DCE6] dark:border-slate-700 hover:bg-[#DDE7F7] dark:hover:bg-slate-800'
             }`}
             title="Toggle Demo Simulation Panel"
           >
-            <Radio size={12} className={demoMode === 'SIMULATION' ? 'text-white animate-pulse' : 'text-slate-400'} />
-            <span className="hidden lg:inline font-mono text-[11px]">
+            <Radio size={13} className={demoMode === 'SIMULATION' ? 'text-white animate-pulse' : 'text-[#F26B21] dark:text-[#FFA366]'} />
+            <span className="hidden lg:inline font-sans text-xs font-bold">
               {demoMode === 'SIMULATION' ? 'SIMULATION' : 'MONITORING'}
             </span>
           </button>
