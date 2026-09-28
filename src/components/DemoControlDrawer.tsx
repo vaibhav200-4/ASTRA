@@ -15,13 +15,15 @@ export const DemoControlDrawer: React.FC = () => {
 
   const isOpen = demoMode === 'SIMULATION';
 
-  // Keyboard shortcut toggle with 'S' key
+  // Keyboard shortcut toggle with 'S' and 'Escape' keys
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
       if (e.key === 's' || e.key === 'S') {
         e.preventDefault();
         setDemoMode(demoMode === 'SIMULATION' ? 'MONITORING' : 'SIMULATION');
+      } else if (e.key === 'Escape') {
+        setDemoMode('MONITORING');
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -31,7 +33,14 @@ export const DemoControlDrawer: React.FC = () => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-y-0 right-0 z-50 w-96 bg-[#0A1A33] border-l border-slate-700 shadow-2xl flex flex-col justify-between select-none font-sans text-xs">
+    <>
+      {/* Dimmed Backdrop Overlay */}
+      <div
+        onClick={() => setDemoMode('MONITORING')}
+        className="fixed inset-0 bg-black/40 z-40 backdrop-blur-xs transition-opacity"
+      />
+
+      <div className="fixed inset-y-0 right-0 z-50 w-96 bg-[#0A1A33] border-l border-slate-700 shadow-2xl flex flex-col justify-between select-none font-sans text-xs">
       {/* Header */}
       <div className="bg-[#071326] px-4 py-3 flex items-center justify-between border-b border-slate-800">
         <div className="flex items-center space-x-2">
@@ -204,5 +213,6 @@ export const DemoControlDrawer: React.FC = () => {
         </button>
       </div>
     </div>
-  );
+  </>
+);
 };
